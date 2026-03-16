@@ -1,0 +1,173 @@
+/* ============================
+   Reset & Base
+   ============================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --accent: #e67e22;
+  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #1a252f;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font);
+}
+
+/* ============================
+   Game wrapper
+   ============================ */
+.game-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ============================
+   SVG padlock container
+   ============================ */
+#padlockSvg {
+  width: 340px;
+  max-width: 95vw;
+  /* height auto from viewBox */
+  overflow: visible;
+}
+
+/* ============================
+   Button labels (SVG text)
+   ============================ */
+.btn-label {
+  font-family: var(--font);
+  font-size: 24px;
+  font-weight: 700;
+  fill: #2c3e50;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================
+   Shared button group styles
+   ============================ */
+.op-btn-svg,
+.undo-btn-svg,
+.num-btn-svg {
+  cursor: pointer;
+}
+
+
+
+/* Hover state – overlay approach prevents gradient flicker */
+.btn-hover-overlay {
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.op-btn-svg:not(.disabled):not(.selected):hover .btn-hover-overlay,
+.num-btn-svg:not(.disabled):not(.selected):hover .btn-hover-overlay,
+.undo-btn-svg:not(.disabled):hover .btn-hover-overlay {
+  opacity: 0.35;
+}
+
+/* Selected state */
+.op-btn-svg.selected rect:first-of-type,
+.op-clone.selected rect:first-of-type,
+.num-btn-svg.selected rect:first-of-type {
+  fill: #e67e22;
+}
+
+.op-btn-svg.selected .btn-hover-overlay,
+.op-clone.selected .btn-hover-overlay,
+.num-btn-svg.selected .btn-hover-overlay {
+  display: none;
+}
+
+.op-btn-svg.selected .btn-label,
+.op-clone.selected .btn-label,
+.num-btn-svg.selected .btn-label {
+  fill: #fff;
+}
+
+/* Disabled state */
+.op-btn-svg.disabled rect,
+.num-btn-svg.disabled rect,
+.undo-btn-svg.disabled rect {
+  opacity: 0.45;
+}
+
+.op-btn-svg.disabled,
+.num-btn-svg.disabled,
+.undo-btn-svg.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================
+   Number button: absolute-like positioning via SVG transform
+   ============================ */
+.num-btn-svg {
+  /* Transitions for move animation handled by JS via CSS transition on transform */
+  will-change: transform;
+}
+
+/* ============================
+   Engraving text
+   ============================ */
+.engraving-text {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  fill: rgba(0,0,0,0.38);
+  text-shadow: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================
+   Shackle animation
+   The shackle group slides up on open.
+   Left leg extends deep into body and stays attached.
+   Right leg has rounded end and comes free.
+   ============================ */
+#shackleGroup {
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Open: shackle slides straight up by 80px.
+   Left leg (y=140..300) remains in body (bottom at y=300-80=220, inside body at y=158..396).
+   Right leg (y=140..201+22=223) comes free (bottom at y=223-80=143, above body top). */
+#padlockSvg.open #shackleGroup {
+  transform: translateY(-80px);
+}
+
+
+
+/* ============================
+   Merging highlight animation on number button
+   ============================ */
+@keyframes mergeFlash {
+  0%   { opacity: 1; }
+  30%  { opacity: 0.6; }
+  60%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.num-btn-svg.merging rect {
+  animation: mergeFlash 0.4s ease;
+}
+
+/* ============================
+   Responsive
+   ============================ */
+@media (max-width: 420px) {
+  #padlockSvg {
+    width: 300px;
+  }
+}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hangslot24</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="game-wrapper">
+      <!--
+        SVG Padlock layout (viewBox units):
+          Total width:  360
+          Shackle visible area: short straight sections above body
+          Body: x=28, y=158, width=304, height=238 (bottom=396), rx=22
+          Shackle: wide arc, legs visible ~18px above body (y=140..158)
+          Outer legs: x=44 and x=316 (radius=136), 44px thick
+          Inner legs: x=88 and x=272
+          Buttons sit inside the body.
+          Row 1 center y=207, Row 2 center y=277, Row 3 center y=347
+          Body top=158, margin=20px. Body bottom=396 (376+20).
+          Margins: left=16px, right=18px, top=20px, bottom=20px.
+      -->
+      <svg id="padlockSvg" viewBox="0 0 360 410" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ========================
+            SHACKLE GROUP
+            The shackle slides up when the lock opens.
+            Outer legs: x=44..88 (left) and x=272..316 (right), 44px thick
+            Arc: center x=180, outer radius=136, inner radius=92
+            Left leg extends deep into body (y=140..300), remains attached when open.
+            Right leg is short (y=140..201) with rounded end, comes free when open.
+            Short visible straight sections above body (y=140..158, ~18px).
+            Right leg has semicircular locking groove + rounded end.
+        ======================== -->
+        <g id="shackleGroup">
+          <!--
+            Shackle path:
+            Outer arc: center (180,140), radius=136 → left x=44, right x=316
+            Inner arc: center (180,140), radius=92 → left x=88, right x=272
+            Left leg: extends to y=300 (deep into body, stays attached when raised 120px)
+            Right leg: extends to y=201 with rounded bottom (comes free when raised 120px)
+          -->
+          <!--
+            Shackle with locking groove cut out using fill-rule="evenodd":
+            Main outer shape as first subpath, then locking groove as second subpath.
+            The evenodd rule makes the groove a transparent hole showing the background.
+            Left leg: x=44..88, extends to y=300 (stays in body when raised).
+            Right leg: x=272..316, extends to y=201 with rounded end (comes free when raised).
+            Locking groove: semicircle on inner/left side of right leg, center (272,170), radius 10.
+          -->
+          <path id="shacklePath"
+            fill-rule="evenodd"
+            d="
+              M 44,300
+              L 44,140
+              A 136,136 0 0 1 316,140
+              L 316,201
+              A 22,22 0 0 1 272,201
+              L 272,140
+              A 92,92 0 0 0 88,140
+              L 88,300
+              Z
+              M 272,165 A 15,15 0 0 1 272,195 Z
+            "
+            fill="#b0bec5"
+            stroke="none"
+          />
+        </g>
+
+        <!-- ========================
+            PADLOCK BODY
+            Rendered on top of the shackle, hiding the lower portions of the legs.
+            Left leg extends behind body (stays attached). Right leg comes free on open.
+        ======================== -->
+        <rect id="padlockBody"
+          x="28" y="158" width="304" height="238" rx="22"
+          fill="#2c3e50"
+        />
+        <!-- ========================
+            BUTTONS – Row 1: number buttons (4 buttons)
+            Body x=28, width=304 → inner x=28+16=44, inner width=272
+            4 buttons × 58px + 3 gaps × 12px = 232+36 = 268 ≤ 272 ✓
+            start x = 44 + (272-268)/2 = 44+2 = 46
+            Centers: 46+29=75, 46+58+12+29=145, 46+2*(58+12)+29=215, 46+3*(58+12)+29=285
+            y top of row 1: 158+20=178, button height=58, center y=178+29=207
+        ======================== -->
+        <g id="numberButtonsGroup">
+          <!-- Buttons injected by JS as SVG <g> elements with class "num-btn-svg" -->
+        </g>
+
+        <!-- ========================
+            BUTTONS – Row 2: operator buttons
+            Same x positions as number buttons
+            y top of row 2: 178+58+12=248, center y=248+29=277
+        ======================== -->
+        <g id="operatorButtonsGroup">
+          <g class="op-btn-svg" data-op="add" transform="translate(75,277)">
+            <rect x="-29" y="-29" width="58" height="58" rx="10" fill="#eaedf0"/>
+            <rect class="btn-hover-overlay" x="-29" y="-29" width="58" height="58" rx="10" fill="#c8cdd6" opacity="0"/>
+            <text x="0" y="0" dominant-baseline="central" text-anchor="middle" class="btn-label">+</text>
+          </g>
+          <g class="op-btn-svg" data-op="subtract" transform="translate(145,277)">
+            <rect x="-29" y="-29" width="58" height="58" rx="10" fill="#eaedf0"/>
+            <rect class="btn-hover-overlay" x="-29" y="-29" width="58" height="58" rx="10" fill="#c8cdd6" opacity="0"/>
+            <text x="0" y="0" dominant-baseline="central" text-anchor="middle" class="btn-label">−</text>
+          </g>
+          <g class="op-btn-svg" data-op="multiply" transform="translate(215,277)">
+            <rect x="-29" y="-29" width="58" height="58" rx="10" fill="#eaedf0"/>
+            <rect class="btn-hover-overlay" x="-29" y="-29" width="58" height="58" rx="10" fill="#c8cdd6" opacity="0"/>
+            <text x="0" y="0" dominant-baseline="central" text-anchor="middle" class="btn-label">×</text>
+          </g>
+          <g class="op-btn-svg" data-op="divide" transform="translate(285,277)">
+            <rect x="-29" y="-29" width="58" height="58" rx="10" fill="#eaedf0"/>
+            <rect class="btn-hover-overlay" x="-29" y="-29" width="58" height="58" rx="10" fill="#c8cdd6" opacity="0"/>
+            <text x="0" y="0" dominant-baseline="central" text-anchor="middle" class="btn-label">÷</text>
+          </g>
+        </g>
+
+        <!-- ========================
+            BUTTONS – Row 3: undo button (left) + engraving (right)
+            y top of row 3: 248+58+12=318, center y=318+29=347
+            Body bottom = 396. Same 20px margin from body bottom as top.
+            "hangslot24" text: right-aligned, same margin as buttons from body edge.
+            Body right = 332, button right margin = 18px → text right at x=314.
+            Text vertical: centered in row 3 area (318..376), baseline ~353.
+        ======================== -->
+        <g id="undoButtonGroup">
+          <g id="undoBtn" class="undo-btn-svg" transform="translate(75,347)">
+            <rect x="-29" y="-29" width="58" height="58" rx="10" fill="#eaedf0"/>
+            <rect class="btn-hover-overlay" x="-29" y="-29" width="58" height="58" rx="10" fill="#c8cdd6" opacity="0"/>
+            <text x="0" y="0" dominant-baseline="central" text-anchor="middle" class="btn-label">←</text>
+          </g>
+        </g>
+
+        <!-- Engraving: "hangslot24" bottom-right of row 3 area.
+            Body right = 332, right margin 18px → x=314.
+            Row 3 bottom = 376 (body bottom 396 minus 20px margin). -->
+        <text id="engravingText"
+          x="314" y="376"
+          text-anchor="end"
+          dominant-baseline="auto"
+          class="engraving-text"
+        >hangslot24</text>
+
+      </svg>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
