@@ -34,7 +34,7 @@ body {
 /* ============================
    SVG padlock container
    ============================ */
-#padlockSvg {
+#padlock {
   width: 340px;
   max-width: 95vw;
   /* height auto from viewBox */
@@ -143,7 +143,7 @@ body {
 /* Open: shackle slides straight up by 80px.
    Left leg (y=140..300) remains in body (bottom at y=300-80=220, inside body at y=158..396).
    Right leg (y=140..201+22=223) comes free (bottom at y=223-80=143, above body top). */
-#padlockSvg.open #shackleGroup {
+#padlock.open #shackleGroup {
   transform: translateY(-80px);
 }
 
@@ -167,7 +167,7 @@ body {
    Responsive
    ============================ */
 @media (max-width: 420px) {
-  #padlockSvg {
+  #padlock {
     width: 300px;
   }
 }

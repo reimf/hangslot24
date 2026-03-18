@@ -6,33 +6,43 @@
 // Constants – SVG layout (must match index.html viewBox)
 // ============================================================
 
+/** Button size in SVG units */
+const BUTTON_SIZE = 60
+/** Half-size of a button (buttons are 60×60, so half = 30) */
+const BUTTON_HALF_SIZE = BUTTON_SIZE / 2
 /** X-centers of the 4 button columns (in SVG units) */
-const COL_X = [75, 145, 215, 285]
+const BUTTON_X = [75, 145, 215, 285]
 /** Y-center of number button row */
-const ROW1_Y = 207
+const NUMBER_BUTTON_Y = 207
 /** Y-center of operator button row */
-const ROW2_Y = 277
-/** Half-size of a button (buttons are 58×58, so half = 29) */
-const BTN_HALF = 29
+const OPERATOR_BUTTON_Y = 277
+/** Y-center of undo button row */
+const UNDO_BUTTON_Y = 347
 
 // ============================================================
 // Types
 // ============================================================
 
-interface NumberCard {
-  id: number
+type NumberCard = {
+  id: string
   value: number
-  el: SVGGElement
-  /** Logical column index (0-3) */
-  slotIndex: number
+  column: number
+  element: SVGGElement
+}
+
+type OperatorCard = {
+  id: string
+  name: OperatorName
+  label: string
+  column: number
+  element: SVGGElement
 }
 
 interface HistoryEntry {
-  cards: Array<{ id: number; value: number; slotIndex: number }>
-  removedId: number
+  numberCards: NumberCard[]
 }
 
-type OpName = 'add' | 'subtract' | 'multiply' | 'divide'
+type OperatorName = 'add' | 'subtract' | 'multiply' | 'divide'
 
 // ============================================================
 // Helpers
@@ -44,37 +54,13 @@ function randomInt(min: number, max: number): number {
 
 /**
  * Generate 4 random digits (1–9) that have at least one solution reaching 24.
- * Falls back to a known good puzzle after a number of failed attempts.
  */
 function generatePuzzle(): number[] {
-  const knownPuzzles: number[][] = [
-    [1, 2, 3, 4],
-    [1, 1, 4, 6],
-    [2, 3, 4, 4],
-    [2, 4, 8, 8],
-    [1, 3, 4, 6],
-    [1, 4, 5, 6],
-    [1, 2, 6, 9],
-    [3, 3, 6, 8],
-    [2, 2, 7, 8],
-    [1, 2, 7, 8],
-    [3, 4, 6, 8],
-    [1, 6, 6, 8],
-    [4, 4, 6, 6],
-  ]
-
-  for (let attempt = 0; attempt < 500; attempt++) {
-    const nums = [
-      randomInt(1, 9),
-      randomInt(1, 9),
-      randomInt(1, 9),
-      randomInt(1, 9),
-    ]
-    if (hasSolution(nums))
-      return nums
+  while (true) {
+    const numbers = [randomInt(1, 9), randomInt(1, 9), randomInt(1, 9), randomInt(1, 9)]
+    if (hasSolution(numbers))
+      return numbers
   }
-
-  return knownPuzzles[randomInt(0, knownPuzzles.length - 1)]!.slice()
 }
 
 function hasSolution(numbers: number[]): boolean {
@@ -89,7 +75,7 @@ function hasSolution(numbers: number[]): boolean {
       const b = numbers[j] as number
       const operations = [add, subtract, multiply, divide]
       const results = operations.map(operation => operation(a, b))
-      const validResults = results.filter(result => !Number.isNaN(result))
+      const validResults = results.filter(result => result !== null)
       return validResults.some(result => hasSolution([result, ...otherNumbers]))
     }
   }
@@ -100,16 +86,16 @@ function add(a: number, b: number): number {
   return a + b
 }
 
-function subtract(a: number, b: number): number {
-  return a < b ? NaN : a - b
+function subtract(a: number, b: number): number | null {
+  return a < b ? null : a - b
 }
 
 function multiply(a: number, b: number): number {
   return a * b
 }
 
-function divide(a: number, b: number): number {
-  return b === 0 || a % b !== 0 ? NaN : a / b
+function divide(a: number, b: number): number | null {
+  return b === 0 || a % b !== 0 ? null : a / b
 }
 
 // ============================================================
@@ -118,12 +104,12 @@ function divide(a: number, b: number): number {
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
-function svgEl(tag: string): SVGElement {
+function newSvgElement(tag: string): SVGElement {
   return document.createElementNS(SVG_NS, tag)
 }
 
-function getSvgEl<T extends Element>(id: string): T {
-  return document.getElementById(id) as unknown as T
+function getSvgElement(id: string): SVGElement {
+  return document.getElementById(id) as unknown as SVGElement
 }
 
 /**
@@ -131,29 +117,29 @@ function getSvgEl<T extends Element>(id: string): T {
  * The transform places the center of the button at (cx, cy) in SVG coords.
  */
 function makeSvgButton(label: string, cx: number, cy: number, extraClass: string): SVGGElement {
-  const g = svgEl('g') as SVGGElement
+  const g = newSvgElement('g') as SVGGElement
   g.setAttribute('class', extraClass)
   g.setAttribute('transform', `translate(${cx},${cy})`)
 
-  const rect = svgEl('rect') as SVGRectElement
-  rect.setAttribute('x', String(-BTN_HALF))
-  rect.setAttribute('y', String(-BTN_HALF))
-  rect.setAttribute('width', '58')
-  rect.setAttribute('height', '58')
-  rect.setAttribute('rx', '10')
-  rect.setAttribute('fill', '#eaedf0')
+  const rectangle = newSvgElement('rect') as SVGRectElement
+  rectangle.setAttribute('x', String(-BUTTON_HALF_SIZE))
+  rectangle.setAttribute('y', String(-BUTTON_HALF_SIZE))
+  rectangle.setAttribute('width', String(BUTTON_SIZE))
+  rectangle.setAttribute('height', String(BUTTON_SIZE))
+  rectangle.setAttribute('rx', '10')
+  rectangle.setAttribute('fill', '#eaedf0')
 
-  const hoverOverlay = svgEl('rect') as SVGRectElement
-  hoverOverlay.setAttribute('x', String(-BTN_HALF))
-  hoverOverlay.setAttribute('y', String(-BTN_HALF))
-  hoverOverlay.setAttribute('width', '58')
-  hoverOverlay.setAttribute('height', '58')
+  const hoverOverlay = newSvgElement('rect') as SVGRectElement
+  hoverOverlay.setAttribute('x', String(-BUTTON_HALF_SIZE))
+  hoverOverlay.setAttribute('y', String(-BUTTON_HALF_SIZE))
+  hoverOverlay.setAttribute('width', String(BUTTON_SIZE))
+  hoverOverlay.setAttribute('height', String(BUTTON_SIZE))
   hoverOverlay.setAttribute('rx', '10')
   hoverOverlay.setAttribute('fill', '#c8cdd6')
   hoverOverlay.setAttribute('opacity', '0')
   hoverOverlay.setAttribute('class', 'btn-hover-overlay')
 
-  const text = svgEl('text') as SVGTextElement
+  const text = newSvgElement('text') as SVGTextElement
   text.setAttribute('x', '0')
   text.setAttribute('y', '0')
   text.setAttribute('dominant-baseline', 'central')
@@ -161,7 +147,7 @@ function makeSvgButton(label: string, cx: number, cy: number, extraClass: string
   text.setAttribute('class', 'btn-label')
   text.textContent = label
 
-  g.appendChild(rect)
+  g.appendChild(rectangle)
   g.appendChild(hoverOverlay)
   g.appendChild(text)
   return g
@@ -172,13 +158,14 @@ function makeSvgButton(label: string, cx: number, cy: number, extraClass: string
 // ============================================================
 
 let cards: NumberCard[] = []
-let selectedCardId: number | null = null
-let selectedOp: OpName | null = null
-let selectedOpEl: SVGGElement | null = null
+let operators: OperatorCard[] = []
+let firstNumberCardId: string | null = null
+let selectedOperator: OperatorName | null = null
+let selectedOperatorElement: SVGGElement | null = null
 let moveHistory: HistoryEntry[] = []
 let nextId = 0
-let animating = false
-let gameOver = false
+let isAnimating = false
+let isGameOver = false
 
 // ============================================================
 // UI state updates
@@ -186,28 +173,28 @@ let gameOver = false
 
 function updateSelectedStates(): void {
   cards.forEach(card =>
-    card.el.classList.toggle('selected', card.id === selectedCardId)
+    card.element.classList.toggle('selected', card.id === firstNumberCardId)
   )
 
-  document.querySelectorAll<SVGGElement>('.op-btn-svg').forEach(btn =>
-    btn.classList.toggle('selected', btn.dataset['op'] === selectedOp)
-  )
-}
-
-function updateUndoBtn(): void {
-  const btn = getSvgEl<SVGGElement>('undoBtn')
-  btn.classList.toggle('disabled', moveHistory.length === 0)
-}
-
-function updateOpButtons(): void {
-  document.querySelectorAll<SVGGElement>('.op-btn-svg').forEach(btn =>
-    btn.classList.toggle('disabled', gameOver)
+  operators.forEach(operator =>
+    operator.element.classList.toggle('selected', operator.name === selectedOperator)
   )
 }
 
-function updateNumButtons(): void {
+function updateUndoButton(): void {
+  const button = getSvgElement('undoBtn')
+  button.classList.toggle('disabled', moveHistory.length === 0)
+}
+
+function updateOperatorButtons(): void {
+  document.querySelectorAll<SVGGElement>('.op-btn-svg').forEach(button =>
+    button.classList.toggle('disabled', isGameOver)
+  )
+}
+
+function updateNumberButtons(): void {
   cards.forEach(card =>
-    card.el.classList.toggle('disabled', gameOver)
+    card.element.classList.toggle('disabled', isGameOver)
   )
 }
 
@@ -215,110 +202,117 @@ function updateNumButtons(): void {
 // Event Handlers
 // ============================================================
 
-function onNumberClick(id: number): void {
-  if (animating || gameOver)
+function onNumberClick(id: string): void {
+  if (isAnimating || isGameOver)
     return
 
-  if (selectedCardId === null) {
-    selectedCardId = id
-    selectedOp = null
-    selectedOpEl = null
+  if (firstNumberCardId === null) {
+    firstNumberCardId = id
+    selectedOperator = null
+    selectedOperatorElement = null
     updateSelectedStates()
     return
   }
 
-  if (selectedCardId === id && selectedOp === null) {
-    selectedCardId = null
+  if (firstNumberCardId === id && selectedOperator === null) {
+    firstNumberCardId = null
     updateSelectedStates()
     return
   }
 
-  if (selectedOp === null) {
-    selectedCardId = id
+  if (selectedOperator === null) {
+    firstNumberCardId = id
     updateSelectedStates()
     return
   }
 
   // Second card clicked: perform operation
-  const firstCard = cards.find(c => c.id === selectedCardId)
-  const secondCard = cards.find(c => c.id === id)
+  const secondNumberCardId = id
+  const firstCard = cards.find(c => c.id === firstNumberCardId)
+  const secondCard = cards.find(c => c.id === secondNumberCardId)
 
-  if (!firstCard || !secondCard)
+  if (!firstCard || !secondCard || firstCard.id === secondCard.id)
     return
-  if (firstCard.id === secondCard.id)
-    return
 
-  const ops = { add, subtract, multiply, divide }
-  const result = ops[selectedOp](firstCard.value, secondCard.value)
+  const operators = { add, subtract, multiply, divide }
+  const result = operators[selectedOperator](firstCard.value, secondCard.value)
 
-  if (Number.isNaN(result)) {
+  if (result === null) {
     // Invalid: clear selection silently
-    selectedCardId = null
-    selectedOp = null
-    selectedOpEl = null
+    firstNumberCardId = null
+    selectedOperator = null
+    selectedOperatorElement = null
     updateSelectedStates()
     return
   }
 
   // Briefly show the third card as selected before animating
-  secondCard.el.classList.add('selected')
+  secondCard.element.classList.add('selected')
 
-  // Save history
+  // Save history - create deep copies of card data
   moveHistory.push({
-    cards: cards.map(c => ({ id: c.id, value: c.value, slotIndex: c.slotIndex })),
-    removedId: secondCard.id,
+    numberCards: cards.map(c => ({
+      id: c.id,
+      value: c.value,
+      column: c.column,
+      element: c.element.cloneNode(true) as SVGGElement
+    })),
   })
 
-  performMergeAnimation(firstCard, secondCard, result, selectedOpEl)
+  performMergeAnimation(firstCard, secondCard, result, selectedOperatorElement)
 }
 
-function onOpClick(op: OpName, el: SVGGElement): void {
-  if (animating || gameOver)
+function onOperatorClick(id: string): void {
+  if (isAnimating || isGameOver || firstNumberCardId === null)
     return
-
-  if (selectedCardId === null)
+  
+  const operator = operators.find(op => op.id === id)
+  if (!operator)
     return
-
-  selectedOp = op
-  selectedOpEl = el
+  
+  selectedOperator = operator.name
+  selectedOperatorElement = operator.element
   updateSelectedStates()
 }
 
+function undoCardButtons(restoredCards: NumberCard[]): void {
+  const group = getSvgElement('numberGroup')
+  group.replaceChildren()
+
+  restoredCards.forEach(card => {
+    // Restore the SVG element's transform attribute
+    card.element.setAttribute('transform', `translate(${BUTTON_X[card.column]},${NUMBER_BUTTON_Y})`)
+    // Remove any CSS transform that might have been applied during animation
+    card.element.style.transform = ''
+    card.element.style.opacity = '1'
+    // Remove 'selected' class that might have been added during animation
+    card.element.classList.remove('selected')
+    // Re-attach event listener to the cloned element
+    card.element.addEventListener('click', () => onNumberClick(card.id))
+    group.appendChild(card.element)
+  })
+}
+
 function onUndo(): void {
-  if (animating)
+  if (isAnimating)
     return
   if (moveHistory.length === 0)
     return
 
   const prev = moveHistory.pop()!
-  const oldCardData = prev.cards
 
-  const group = getSvgEl<SVGGElement>('numberButtonsGroup')
-  while (group.firstChild) group.removeChild(group.firstChild)
+  // Restore cards by reusing existing SVG elements
+  cards = prev.numberCards
+  undoCardButtons(cards)
 
-  cards = oldCardData.map((cd: { id: number; value: number; slotIndex: number }) => {
-    const g = makeSvgButton(String(cd.value), COL_X[cd.slotIndex]!, ROW1_Y, 'num-btn-svg')
-    g.dataset['id'] = String(cd.id)
-    const cardId = cd.id
-    g.addEventListener('click', () => onNumberClick(cardId))
-    group.appendChild(g)
-
-    return {
-      id: cd.id,
-      value: cd.value,
-      slotIndex: cd.slotIndex,
-      el: g,
-    }
-  })
-
-  selectedCardId = null
-  selectedOp = null
-  selectedOpEl = null
-  gameOver = false
+  firstNumberCardId = null
+  selectedOperator = null
+  selectedOperatorElement = null
+  isGameOver = false
   updateSelectedStates()
-  updateUndoBtn()
-  updateOpButtons()
-  updateNumButtons()
+  updateUndoButton()
+  updateOperatorButtons()
+  updateNumberButtons()
 }
 
 // ============================================================
@@ -344,19 +338,19 @@ function performMergeAnimation(
   result: number,
   opElRef: SVGGElement | null
 ): void {
-  animating = true
+  isAnimating = true
 
-  const svg = getSvgEl<SVGGElement>('padlockSvg')
+  const svg = getSvgElement('padlock')
 
   // Positions
-  const firstCX = COL_X[firstCard.slotIndex]
-  const secondCX = COL_X[secondCard.slotIndex]
+  const firstCX = BUTTON_X[firstCard.column]
+  const secondCX = BUTTON_X[secondCard.column]
 
   // Operator button center
   let opCX = firstCX
-  const opCY = ROW2_Y
+  const opCY = OPERATOR_BUTTON_Y
 
-  const opEl = opElRef ?? document.querySelector<SVGGElement>(`.op-btn-svg[data-op="${selectedOp}"]`)
+  const opEl = opElRef ?? document.querySelector<SVGGElement>(`.op-btn-svg[data-op="${selectedOperator}"]`)
   if (opEl) {
     const t = opEl.getAttribute('transform') || ''
     const m = t.match(/translate\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)/)
@@ -386,9 +380,9 @@ function performMergeAnimation(
 
   // ── Re-parent secondCard to svg root so it renders on top of opClone ──
   // Switch from SVG attribute to CSS transform for the Web Animations API.
-  secondCard.el.removeAttribute('transform')
-  secondCard.el.style.transform = `translate(${secondCX}px, ${ROW1_Y}px)`
-  svg.appendChild(secondCard.el)
+  secondCard.element.removeAttribute('transform')
+  secondCard.element.style.transform = `translate(${secondCX}px, ${NUMBER_BUTTON_Y}px)`
+  svg.appendChild(secondCard.element)
 
   const moveDuration = 1000
   const moveEasing = 'cubic-bezier(0.4, 0, 0.2, 1)'
@@ -398,16 +392,16 @@ function performMergeAnimation(
     opClone.animate(
       [
         { transform: `translate(${opCX}px, ${opCY}px)` },
-        { transform: `translate(${firstCX}px, ${ROW1_Y}px)` },
+        { transform: `translate(${firstCX}px, ${NUMBER_BUTTON_Y}px)` },
       ],
       { duration: moveDuration, easing: moveEasing, fill: 'forwards' }
     )
 
   // ── Animate secondCard: its position → firstCard position (over the moving op clone) ──
-  const secondAnim = secondCard.el.animate(
+  const secondAnim = secondCard.element.animate(
     [
-      { transform: `translate(${secondCX}px, ${ROW1_Y}px)` },
-      { transform: `translate(${firstCX}px, ${ROW1_Y}px)` },
+      { transform: `translate(${secondCX}px, ${NUMBER_BUTTON_Y}px)` },
+      { transform: `translate(${firstCX}px, ${NUMBER_BUTTON_Y}px)` },
     ],
     { duration: moveDuration, easing: moveEasing, fill: 'forwards' }
   )
@@ -423,7 +417,7 @@ function performMergeAnimation(
         { duration: fadeDuration, easing: fadeEasing, fill: 'forwards' }
       )
 
-    const fadeAnim = secondCard.el.animate(
+    const fadeAnim = secondCard.element.animate(
       [{ opacity: '1' }, { opacity: '0' }],
       { duration: fadeDuration, easing: fadeEasing, fill: 'forwards' }
     )
@@ -432,34 +426,39 @@ function performMergeAnimation(
       // ── Clean up ──
       if (opClone && opClone.parentNode)
         opClone.parentNode.removeChild(opClone)
-      if (secondCard.el.parentNode)
-        secondCard.el.parentNode.removeChild(secondCard.el)
+      if (secondCard.element.parentNode)
+        secondCard.element.parentNode.removeChild(secondCard.element)
       cards = cards.filter(c => c.id !== secondCard.id)
-
-      // Re-attach remaining cards to the number group
-      const group = getSvgEl<SVGGElement>('numberButtonsGroup')
-      for (const card of cards) {
-        if (card.el.parentNode !== group)
-          group.appendChild(card.el)
-      }
 
       // Update firstCard value; make sure it stays at its correct position
       firstCard.value = result
-      const txt = firstCard.el.querySelector('text')
+      const txt = firstCard.element.querySelector('text')
       if (txt)
         txt.textContent = String(result)
 
+      // Re-attach remaining cards to the number group and restore their transforms
+      const group = getSvgElement('numberGroup')
+      cards.forEach(card => {
+        // Ensure the card has the correct transform attribute
+        card.element.setAttribute('transform', `translate(${BUTTON_X[card.column]},${NUMBER_BUTTON_Y})`)
+        // Clear any CSS transforms from animation
+        card.element.style.transform = ''
+        // Only append if not already in the group
+        if (card.element.parentNode !== group)
+          group.appendChild(card.element)
+      })
+
       // Flash merging class
-      firstCard.el.classList.add('merging')
-      setTimeout(() => firstCard.el.classList.remove('merging'), 420)
+      firstCard.element.classList.add('merging')
+      setTimeout(() => firstCard.element.classList.remove('merging'), 420)
 
-      selectedCardId = null
-      selectedOp = null
-      selectedOpEl = null
+      firstNumberCardId = null
+      selectedOperator = null
+      selectedOperatorElement = null
       updateSelectedStates()
-      updateUndoBtn()
+      updateUndoButton()
 
-      animating = false
+      isAnimating = false
 
       // Check win condition
       if (cards.length === 1)
@@ -476,9 +475,9 @@ function performMergeAnimation(
           }, 400)
         else {
           // Not 24: disable number and op buttons, wait for undo
-          gameOver = true
-          updateOpButtons()
-          updateNumButtons()
+          isGameOver = true
+          updateOperatorButtons()
+          updateNumberButtons()
         }
     }
   }
@@ -489,15 +488,11 @@ function performMergeAnimation(
 // ============================================================
 
 function openPadlock(): void {
-  const svg = document.getElementById('padlockSvg')
-  if (svg)
-    svg.classList.add('open')
+  document.getElementById('padlock')?.classList.add('open')
 }
 
 function closePadlock(): void {
-  const svg = document.getElementById('padlockSvg')
-  if (svg)
-    svg.classList.remove('open')
+  document.getElementById('padlock')?.classList.remove('open')
 }
 
 // ============================================================
@@ -505,52 +500,72 @@ function closePadlock(): void {
 // ============================================================
 
 function startGame(): void {
-  const nums = generatePuzzle()
   nextId = 0
   moveHistory = []
-  selectedCardId = null
-  selectedOp = null
-  selectedOpEl = null
-  gameOver = false
+  firstNumberCardId = null
+  selectedOperator = null
+  selectedOperatorElement = null
+  isGameOver = false
 
-  const group = getSvgEl<SVGGElement>('numberButtonsGroup')
-  while (group.firstChild) group.removeChild(group.firstChild)
+  const numbers = generatePuzzle()
+  createCardButtons(numbers)
+  createOperatorButtons()
+  createUndoButton()
 
-  cards = nums.map((n, i) => {
-    const g = makeSvgButton(String(n), COL_X[i]!, ROW1_Y, 'num-btn-svg')
-    const id = nextId++
-    g.dataset['id'] = String(id)
-    g.addEventListener('click', () => onNumberClick(id))
-    group.appendChild(g)
+  updateNumberButtons()
+  updateOperatorButtons()
+  updateUndoButton()
 
-    return {
-      id,
-      value: n,
-      el: g,
-      slotIndex: i,
-    }
-  })
-
-  updateUndoBtn()
-  updateOpButtons()
-  updateNumButtons()
   updateSelectedStates()
 }
 
-function init(): void {
-  // Wire operator buttons
-  document.querySelectorAll<SVGGElement>('.op-btn-svg').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const op = btn.dataset['op'] as OpName | undefined
-      if (op)
-        onOpClick(op, btn)
-    })
+function createCardButtons(numbers: number[]) {
+  cards = numbers.map((num, column) => {
+    const g = makeSvgButton(String(num), BUTTON_X[column]!, NUMBER_BUTTON_Y, 'num-btn-svg')
+    g.id = `number-column-${column}`
+    g.addEventListener('click', () => onNumberClick(g.id))
+
+    return {
+      id: g.id,
+      value: num,
+      column: column,
+      element: g,
+    }
   })
+  getSvgElement('numberGroup').replaceChildren(...cards.map(card => card.element))
+}
 
-  // Wire undo button
-  const undoBtn = getSvgEl<SVGGElement>('undoBtn')
-  undoBtn.addEventListener('click', onUndo)
+function createOperatorButtons() {
+  const ops: [string, OperatorName][] = [
+    ['+', 'add'],
+    ['-', 'subtract'],
+    ['×', 'multiply'],
+    ['÷', 'divide']
+  ]
+  operators = ops.map(([label, operatorName], column) => {
+    const g = makeSvgButton(label, BUTTON_X[column]!, OPERATOR_BUTTON_Y, 'op-btn-svg')
+    g.id = `operator-column-${column}`
+    g.addEventListener('click', () => onOperatorClick(g.id))
 
+    return {
+      id: g.id,
+      name: operatorName,
+      label: label,
+      column: column,
+      element: g,
+    }
+  })
+  getSvgElement('operatorGroup').replaceChildren(...operators.map(card => card.element))
+}
+
+function createUndoButton() {
+  const g = makeSvgButton('←', BUTTON_X[0]!, UNDO_BUTTON_Y, 'undo-btn-svg')
+  g.id = 'undoBtn'
+  g.addEventListener('click', onUndo)
+  getSvgElement('undoGroup').replaceChildren(g)
+}
+
+function init(): void {
   startGame()
 }
 
