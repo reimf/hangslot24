@@ -100,7 +100,7 @@ body {
 /* ============================
    Engraving text
    ============================ */
-.engraving-text {
+.envgraved-text {
   font-family: var(--font);
   font-size: 14px;
   font-weight: 700;
@@ -118,5 +118,5 @@ body {
 }
 
 #padlock.open #shackleGroup {
-  transform: translateY(-80px);
+  transform: translateY(-90px);
 }
