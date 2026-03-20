@@ -1,7 +1,9 @@
 /* ============================
    Reset & Base
    ============================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -79,6 +81,7 @@ body {
       fill: #e67e22;
       opacity: 1;
     }
+
     .btn-label {
       fill: #fff;
     }
@@ -91,6 +94,7 @@ body {
     rect {
       fill: #3d5166;
     }
+
     .btn-label {
       opacity: 0;
     }
@@ -104,7 +108,7 @@ body {
   font-family: var(--font);
   font-size: 14px;
   font-weight: 700;
-  fill: rgba(0,0,0,0.38);
+  fill: rgba(0, 0, 0, 0.38);
   text-shadow: none;
   pointer-events: none;
   user-select: none;

@@ -2,16 +2,6 @@
 // Hangslot24 – Game Logic (SVG-based)
 // ============================================================
 
-// ============================================================
-// Types
-// ============================================================
-
-type OperatorName = 'add' | 'subtract' | 'multiply' | 'divide'
-
-// ============================================================
-// Classes
-// ============================================================
-
 class Button {
   private readonly element: SVGElement
 
@@ -19,8 +9,8 @@ class Button {
     this.element = element
   }
 
-  public isHidden(): boolean {
-    return this.element.classList.contains('hidden')
+  public isUsable(): boolean {
+    return !this.element.classList.contains('disabled') && !this.element.classList.contains('hidden')
   }
 
   public hide(toggle: boolean): void {
@@ -43,52 +33,51 @@ class Button {
     return this.element.querySelector('text')!.textContent!
   }
 
-  public setNumber(number: number): void {
-    this.setText(number.toString())
-    this.select(false)
-    this.disable(false)
-    this.hide(false)
-  }
-
-  public getNumber(): number {
-    if (this.isHidden())
-      return NaN
-    return parseInt(this.getText())
-  }
-
-  public getAttribute(name: string): string | null {
-    return this.element.getAttribute(name)
-  }
-
   public addEventListener(type: string, listener: EventListener): void {
     this.element.addEventListener(type, listener)
   }
 }
 
-class State {
+class Calculator {
   private readonly numberButtons: Button[] = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons: Button[] = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
+  private readonly numberAndOperatorButtons: Button[] = [...this.numberButtons, ...this.operatorButtons]
   private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
+  private readonly allButtons = [...this.numberButtons, ...this.operatorButtons, this.undoButton]
   private firstSelectedNumberButton: Button | null = null
   private secondSelectedNumberButton: Button | null = null
   private selectedOperatorButton: Button | null = null
-  private moveHistory: number[][] = []
-  private isCalculating = false
-  private isDeadEnd = false
-  private readonly game: Game
+  private stateHistory: number[][] = []
+  private game: Game
 
-  constructor(numbers: number[], game: Game) {
-    this.game = game
+  constructor() {
     this.wireButtons()
-    this.resetNumberButtons(numbers)
-    this.resetOperatorButtons()
-    this.resetSelectedButtons()
+    this.game = this.newGame()
   }
 
-  private resetNumberButtons(numbers: number[]): void {
-    this.numberButtons.forEach((button, column) =>
-      button.setNumber(numbers[column]!)
-    )
+  private newGame(): Game {
+    const game = new Game()
+    const numbers = game.generateNumbers()
+    this.setStateHistory([])
+    this.setNumberButtons(numbers)
+    this.resetOperatorButtons()
+    this.resetSelectedButtons()
+    this.setIsDeadEnd(false)
+    return game
+  }
+
+  private setStateHistory(stateHistory: number[][]): void {
+    this.stateHistory = stateHistory
+    this.undoButton.disable(this.stateHistory.length === 0)
+  }
+
+  private setNumberButtons(numbers: number[]): void {
+    this.numberButtons.forEach((button, column) => {
+      const value = numbers[column]!
+      button.hide(isNaN(value))
+      button.disable(false)
+      button.setText(String(value))
+    })
   }
 
   private resetOperatorButtons(): void {
@@ -113,47 +102,56 @@ class State {
     this.undoButton.addEventListener('click', () => this.onClickUndoButton(this.undoButton))
   }
 
-  private setFirstSelectedNumberButton(button: Button|null): void {
+  private setFirstSelectedNumberButton(button: Button | null): void {
     this.firstSelectedNumberButton?.select(false)
     this.firstSelectedNumberButton = button
     this.firstSelectedNumberButton?.select(true)
   }
 
-  private setSelectedOperatorButton(button: Button|null): void {
+  private setSelectedOperatorButton(button: Button | null): void {
     this.selectedOperatorButton?.select(false)
     this.selectedOperatorButton = button
     this.selectedOperatorButton?.select(true)
   }
 
-  private setSecondSelectedNumberButton(button: Button|null): void {
+  private setSecondSelectedNumberButton(button: Button | null): void {
     this.secondSelectedNumberButton?.select(false)
     this.secondSelectedNumberButton = button
     this.secondSelectedNumberButton?.select(true)
   }
 
-  private onClickUndoButton(button: Button): void {
-    if (this.isCalculating || this.isDeadEnd || button.isHidden() || this.moveHistory.length === 0)
-      return
-    const prev = this.moveHistory.pop()!
-    this.numberButtons.forEach((button, column) => {
-      const value = prev[column]!
-      button.hide(isNaN(value))
-      button.setNumber(value)
-    })
+  private setIsDeadEnd(isDeadEnd: boolean): void {
+    this.numberAndOperatorButtons.forEach(button => button.disable(isDeadEnd))
+  }
 
-    this.setFirstSelectedNumberButton(null)
-    this.setSelectedOperatorButton(null)
-    this.isDeadEnd = false
+  private setIsCalculating(isCalculating: boolean): void {
+    this.allButtons.forEach(button => button.disable(isCalculating))
+  }
+
+  public getNumber(button: Button): number {
+    if (button.isUsable())
+      return parseInt(button.getText())
+    return NaN
+  }
+
+  private onClickUndoButton(button: Button): void {
+    if (!button.isUsable())
+      return
+    const previousNumbers = this.stateHistory[0]!
+    this.setStateHistory(this.stateHistory.slice(1))
+    this.setNumberButtons(previousNumbers)
+    this.resetSelectedButtons()
+    this.setIsDeadEnd(false)
   }
 
   private onClickOperatorButton(button: Button): void {
-    if (this.isCalculating || this.isDeadEnd || button.isHidden() || this.firstSelectedNumberButton === null)
+    if (!button.isUsable() || this.firstSelectedNumberButton === null)
       return
     this.setSelectedOperatorButton(button)
   }
 
   private onClickNumberButton(button: Button): void {
-    if (this.isCalculating || this.isDeadEnd || button.isHidden())
+    if (!button.isUsable())
       return
     if (this.firstSelectedNumberButton === button && this.selectedOperatorButton === null) {
       this.setFirstSelectedNumberButton(null)
@@ -165,38 +163,39 @@ class State {
     }
     if (this.firstSelectedNumberButton === button)
       return
+
     this.setSecondSelectedNumberButton(button)
-    const firstNumber = this.firstSelectedNumberButton.getNumber()
+    const firstNumber = this.getNumber(this.firstSelectedNumberButton)
     const operatorSymbol = this.selectedOperatorButton.getText()
-    const secondNumber = this.secondSelectedNumberButton!.getNumber()
+    const secondNumber = this.getNumber(this.secondSelectedNumberButton as Button)
     const result = this.game.performCalculation(firstNumber, operatorSymbol, secondNumber)
     if (isNaN(result)) {
       this.resetSelectedButtons()
       return
     }
 
-    this.moveHistory.push(this.numberButtons.map(button => button.getNumber()))
-
-    this.isCalculating = true
-
-    // Show full expression on firstNumberButton immediately (e.g. "8+3")
-    this.firstSelectedNumberButton.setText(`${firstNumber}${operatorSymbol}${secondNumber}`)
+    this.setIsCalculating(true)
+    const oldState = this.numberButtons.map(button => this.getNumber(button))
+    this.setStateHistory([oldState, ...this.stateHistory])
 
     this.secondSelectedNumberButton!.hide(true)
     this.setSelectedOperatorButton(null)
     this.setSecondSelectedNumberButton(null)
 
+    // Show full expression on firstNumberButton immediately (e.g. "8+3")
+    this.firstSelectedNumberButton.setText(`${firstNumber}${operatorSymbol}${secondNumber}`)
+
     setTimeout(() => {
       this.firstSelectedNumberButton!.setText(String(result))
-      this.isCalculating = false
-      const numbers = this.numberButtons.filter(button => !button.isHidden()).map(button => button.getNumber())
+      this.setIsCalculating(false)
+      const numbers = this.numberButtons.filter(button => button.isUsable()).map(button => this.getNumber(button))
       if (this.game.checkDeadEnd(numbers)) {
-        this.isDeadEnd = true
+        this.setIsDeadEnd(true)
         return
       }
       if (this.game.checkGameOver(numbers)) {
         this.openAndClosePadlock()
-        return        
+        return
       }
     }, 1000)
   }
@@ -207,7 +206,9 @@ class State {
       padlock.classList.add('open')
       setTimeout(() => {
         padlock.classList.remove('open')
-        setTimeout(() => new Game(), 700)
+        setTimeout(() => {
+          this.game = this.newGame()
+        }, 700)
       }, 3000)
     }, 400)
   }
@@ -222,23 +223,23 @@ class State {
 // ============================================================
 
 class Game {
-  private readonly state: State
-  
-  constructor() {
-    const numbers = this.generatePuzzle()
-    this.state = new State(numbers, this)
-  }
+  private readonly operations = new Map([
+    ['+', this.add],
+    ['−', this.subtract],
+    ['×', this.multiply],
+    ['÷', this.divide],
+  ])
 
   private randomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min
   }
 
-  private generatePuzzle(): number[] {
+  public generateNumbers(): number[] {
     while (true) {
       const numbers = [
-        this.randomInt(1, 9), 
-        this.randomInt(1, 9), 
-        this.randomInt(1, 9), 
+        this.randomInt(1, 9),
+        this.randomInt(1, 9),
+        this.randomInt(1, 9),
         this.randomInt(1, 9),
       ]
       if (this.hasSolution(numbers))
@@ -284,14 +285,9 @@ class Game {
     return b === 0 || a % b !== 0 ? NaN : a / b
   }
 
-  public performCalculation(firstNumber: number, operatorSymbol: string, secondNumber: number): number {
-    const operations = new Map([
-      ['+', this.add],
-      ['−', this.subtract],
-      ['×', this.multiply],
-      ['÷', this.divide],
-    ])
-    return operations.get(operatorSymbol)!(firstNumber, secondNumber)
+  public performCalculation(number1: number, operator: string, number2: number): number {
+    const operation = this.operations.get(operator)!
+    return operation(number1, number2)
   }
 
   public checkDeadEnd(numbers: number[]): boolean {
@@ -303,4 +299,4 @@ class Game {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => new Game())
+document.addEventListener('DOMContentLoaded', () => new Calculator())
