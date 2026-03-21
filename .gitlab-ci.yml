@@ -1,0 +1,31 @@
+default:
+  image: node:latest
+
+stages:
+  - compile
+  - deploy
+
+typescript:
+  stage: compile
+  script:
+    - npm ci
+    - npx tsc --build --force --verbose
+  artifacts:
+    paths:
+      - "**/*.js"
+  only:
+    - main
+
+pages:
+  stage: deploy
+  script:
+    - mkdir public
+    - cp *.{css,html} public
+    - mkdir public/dist
+    - cp dist/*.js public/dist
+    - gzip -k -6 public/*.{css,html} public/dist/*.js
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
