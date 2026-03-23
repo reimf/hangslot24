@@ -1,5 +1,6 @@
 import { Button } from './button.js'
-import { Game } from './game.js'
+import { State } from './state.js'
+import { Selector } from './selector.js'
 
 export type Index = -1 | 0 | 1 | 2 | 3
 
@@ -7,16 +8,8 @@ export class Padlock {
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
   private readonly undoButtons = Array.from(document.querySelectorAll<SVGElement>('.undo-button')).map(el => new Button(el))
-  private readonly game = new Game()
-
-  // State
-  private currentNumbers: number[] = []
-  private firstSelectedNumberIndex: Index = -1
-  private secondSelectedNumberIndex: Index = -1
-  private selectedOperatorIndex: Index = -1
-  private numbersHistory: number[][] = []
-  private isDeadEnd: boolean = false
-  private isGameOver: boolean = false
+  private readonly state = new State()
+  private readonly selector = new Selector()
 
   constructor() {
     this.wireButtons()
@@ -36,93 +29,71 @@ export class Padlock {
   }
 
   private start(): void {
-    this.currentNumbers = this.game.generateNumbers()
-    this.firstSelectedNumberIndex = -1
-    this.secondSelectedNumberIndex = -1
-    this.selectedOperatorIndex = -1
-    this.numbersHistory = []
-    this.isDeadEnd = false
-    this.isGameOver = false
-    this.showState()
+    this.state.reset()
+    this.selector.clear()
+    this.updateInterface()
   }
 
-  private showState(): void {
+  private updateInterface(): void {
+    const numbers = this.state.getNumbers()
     this.numberButtons.forEach((button, index) => {
-      const value = this.currentNumbers[index]!
+      const value = numbers[index]!
       button.setText(isNaN(value) ? '' : String(value))
-      button.disable(this.isDeadEnd || this.isGameOver || isNaN(value))
-      button.select(this.firstSelectedNumberIndex === index || this.secondSelectedNumberIndex === index)
+      button.disable(this.state.isDeadEnd() || this.state.isGameOver() || isNaN(value))
+      button.select(this.selector.isNumberSelected(index as Index))
     })
     this.operatorButtons.forEach((button, index) => {
-      button.disable(this.isDeadEnd || this.isGameOver)
-      button.select(this.selectedOperatorIndex === index)
+      button.disable(this.state.isDeadEnd() || this.state.isGameOver())
+      button.select(this.selector.isOperatorSelected(index as Index))
     })
     this.undoButtons.forEach(button => {
-      button.disable(this.isGameOver || this.numbersHistory.length === 0)
+      button.disable(this.state.isGameOver() || !this.state.canUndo())
     })
   }
 
   private onClickUndoButton(_index: Index): void {
-    this.currentNumbers = this.numbersHistory.pop()!
-    this.firstSelectedNumberIndex = -1
-    this.secondSelectedNumberIndex = -1
-    this.selectedOperatorIndex = -1
-    this.isDeadEnd = false
-    this.showState()
+    this.state.undo()
+    this.selector.clear()
+    this.updateInterface()
   }
 
   private onClickOperatorButton(index: Index): void {
-    if (this.firstSelectedNumberIndex === -1)
+    if (!this.selector.hasFirstNumber())
       return
-    this.selectedOperatorIndex = index
-    this.showState()
+    this.selector.selectOperator(index)
+    this.updateInterface()
   }
 
   private onClickNumberButton(index: Index): void {
-    if (this.firstSelectedNumberIndex === index) {
-      this.firstSelectedNumberIndex = -1
-      this.selectedOperatorIndex = -1
-      this.showState()
-      return
-    }
-    if (this.firstSelectedNumberIndex === -1 || this.selectedOperatorIndex === -1) {
-      this.firstSelectedNumberIndex = index
-      this.showState()
-      return
-    }
-    this.secondSelectedNumberIndex = index
-    this.showState()
-
-    const firstNumber = this.currentNumbers[this.firstSelectedNumberIndex]!
-    const secondNumber = this.currentNumbers[this.secondSelectedNumberIndex]!
-    const result = this.game.performCalculation(firstNumber, this.selectedOperatorIndex, secondNumber)
-    if (isNaN(result)) {
-      this.firstSelectedNumberIndex = -1
-      this.secondSelectedNumberIndex = -1
-      this.selectedOperatorIndex = -1
-      this.showState()
+    if (this.selector.toggleFirstNumber(index)) {
+      this.updateInterface()
       return
     }
 
-    this.numbersHistory.push([...this.currentNumbers]) // push a static copy of the current numbers
-    this.currentNumbers[this.firstSelectedNumberIndex] = NaN
-    this.currentNumbers[this.secondSelectedNumberIndex] = result
-    this.selectedOperatorIndex = -1
-    this.firstSelectedNumberIndex = this.secondSelectedNumberIndex
-    this.secondSelectedNumberIndex = -1
-    this.showState()
-    const validNumbers = this.currentNumbers.filter(number => !isNaN(number))
-    if (this.game.checkDeadEnd(validNumbers)) {
-      this.isDeadEnd = true
-      this.showState()
+    this.selector.selectNumber(index)
+    this.updateInterface()
+
+    if (this.selector.isInProgress())
+      return
+
+    const success = this.state.performCalculation(
+      this.selector.getFirstNumberIndex(),
+      this.selector.getOperatorIndex(),
+      this.selector.getSecondNumberIndex()
+    )
+
+    if (!success) {
+      this.selector.clear()
+      this.updateInterface()
       return
     }
-    if (this.game.checkGameOver(validNumbers)) {
-      this.isGameOver = true
-      this.showState()
+
+    this.selector.clearOperator()
+    this.selector.moveSecondToFirst()
+    this.updateInterface()
+
+    if (this.state.isGameOver())
       this.openAndClosePadlock()
-      return
-    }
   }
 
   private openAndClosePadlock(): void {
