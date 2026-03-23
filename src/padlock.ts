@@ -2,92 +2,69 @@ import { Button } from './button.js'
 import { Game } from './game.js'
 
 export class Padlock {
-  private readonly numberButtons: Button[] = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
-  private readonly operatorButtons: Button[] = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
-  private readonly numberAndOperatorButtons: Button[] = [...this.numberButtons, ...this.operatorButtons]
-  private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
-  private readonly allButtons = [...this.numberButtons, ...this.operatorButtons, this.undoButton]
-  private firstSelectedNumberButton: Button | null = null
-  private secondSelectedNumberButton: Button | null = null
-  private selectedOperatorButton: Button | null = null
-  private stateHistory: number[][] = []
-  private game: Game
+  private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
+  private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
+  private readonly undoButtons = Array.from(document.querySelectorAll<SVGElement>('.undo-button')).map(el => new Button(el))
+  private readonly game = new Game()
+
+  // State
+  private currentNumbers: number[] = []
+  private firstSelectedNumberButton: Button|null = null
+  private secondSelectedNumberButton: Button|null = null
+  private selectedOperatorButton: Button|null = null
+  private numbersHistory: number[][] = []
+  private isDeadEnd: boolean = false
+  private isCalculating: boolean = false
+  private isGameOver: boolean = false
 
   constructor() {
     this.wireButtons()
-    this.game = new Game()
     this.start()
-  }
-
-  private start(): void {
-    const numbers = this.game.generateNumbers()
-    this.setStateHistory([])
-    this.setNumberButtons(numbers)
-    this.enableOperatorButtons()
-    this.resetSelectedButtons()
-    this.setDeadEnd(false)
-  }
-
-  private setStateHistory(stateHistory: number[][]): void {
-    this.stateHistory = stateHistory
-    this.undoButton.disable(this.stateHistory.length === 0)
-  }
-
-  private setNumberButtons(numbers: number[]): void {
-    this.numberButtons.forEach((button, column) => {
-      const value = numbers[column]!
-      button.hide(isNaN(value))
-      button.disable(false)
-      button.setText(String(value))
-    })
-  }
-
-  private enableOperatorButtons(): void {
-    this.operatorButtons.forEach(button => {
-      button.disable(false)
-    })
-  }
-
-  private resetSelectedButtons() {
-    this.setFirstSelectedNumberButton(null)
-    this.setSecondSelectedNumberButton(null)
-    this.setSelectedOperatorButton(null)
   }
 
   private wireButtons(): void {
     this.numberButtons.forEach(button =>
-      button.addEventListener('click', () => this.onClickNumberButton(button))
+      button.addEventListener('click', () => button.isUsable() && this.onClickNumberButton(button))
     )
     this.operatorButtons.forEach(button =>
-      button.addEventListener('click', () => this.onClickOperatorButton(button))
+      button.addEventListener('click', () => button.isUsable() && this.onClickOperatorButton(button))
     )
-    this.undoButton.addEventListener('click', () => this.onClickUndoButton(this.undoButton))
+    this.undoButtons.forEach(button =>
+      button.addEventListener('click', () => button.isUsable() && this.onClickUndoButton(button))
+    )
   }
 
-  private setFirstSelectedNumberButton(button: Button | null): void {
-    this.firstSelectedNumberButton?.select(false)
-    this.firstSelectedNumberButton = button
-    this.firstSelectedNumberButton?.select(true)
+  private start(): void {
+    this.currentNumbers = this.game.generateNumbers()
+    this.numbersHistory = []
+    this.isCalculating = false
+    this.isDeadEnd = false
+    this.isGameOver = false
+    this.resetSelectedButtons()
+    this.showState()
   }
 
-  private setSelectedOperatorButton(button: Button | null): void {
-    this.selectedOperatorButton?.select(false)
-    this.selectedOperatorButton = button
-    this.selectedOperatorButton?.select(true)
+  private showState(): void {
+    this.numberButtons.forEach((button, column) => {
+      const value = this.currentNumbers[column]!
+      button.hide(isNaN(value))
+      button.disable(this.isCalculating || this.isDeadEnd || this.isGameOver)
+      button.select(this.firstSelectedNumberButton === button || this.secondSelectedNumberButton === button)
+      button.setText(String(value))
+    })
+    this.operatorButtons.forEach(button => {
+      button.disable(this.isCalculating || this.isDeadEnd || this.isGameOver)
+      button.select(this.selectedOperatorButton === button)
+    })
+    this.undoButtons.forEach(button => {
+      button.disable(this.isCalculating || this.isGameOver|| this.numbersHistory.length === 0)
+    })
   }
 
-  private setSecondSelectedNumberButton(button: Button | null): void {
-    this.secondSelectedNumberButton?.select(false)
-    this.secondSelectedNumberButton = button
-    this.secondSelectedNumberButton?.select(true)
-  }
-
-  private setDeadEnd(isDeadEnd: boolean): void {
-    this.numberAndOperatorButtons.forEach(button => button.disable(isDeadEnd))
-  }
-
-  private setCalculating(isCalculating: boolean): void {
-    this.allButtons.forEach(button => button.disable(isCalculating))
+  private resetSelectedButtons() {
+    this.firstSelectedNumberButton = null
+    this.secondSelectedNumberButton = null
+    this.selectedOperatorButton = null
   }
 
   public getNumber(button: Button): number {
@@ -96,35 +73,34 @@ export class Padlock {
     return NaN
   }
 
-  private onClickUndoButton(button: Button): void {
-    if (!button.isUsable())
-      return
-    const previousNumbers = this.stateHistory[0]!
-    this.setStateHistory(this.stateHistory.slice(1))
-    this.setNumberButtons(previousNumbers)
+  private onClickUndoButton(_button: Button): void {
+    this.currentNumbers = this.numbersHistory.pop()!
     this.resetSelectedButtons()
-    this.setDeadEnd(false)
+    this.isDeadEnd = false
+    this.showState()
   }
 
   private onClickOperatorButton(button: Button): void {
-    if (!button.isUsable() || this.firstSelectedNumberButton === null)
+    if (this.firstSelectedNumberButton === null)
       return
-    this.setSelectedOperatorButton(button)
+    this.selectedOperatorButton = button
+    this.showState()
   }
 
   private onClickNumberButton(button: Button): void {
-    if (!button.isUsable())
-      return
     if (this.firstSelectedNumberButton === button) {
-      this.setFirstSelectedNumberButton(null)
-      this.setSelectedOperatorButton(null)
+      this.firstSelectedNumberButton = null
+      this.selectedOperatorButton = null
+      this.showState()
       return
     }
     if (this.firstSelectedNumberButton === null || this.selectedOperatorButton === null) {
-      this.setFirstSelectedNumberButton(button)
+      this.firstSelectedNumberButton = button
+      this.showState()
       return
     }
-    this.setSecondSelectedNumberButton(button)
+    this.secondSelectedNumberButton = button
+    this.showState()
     
     const firstNumber = this.getNumber(this.firstSelectedNumberButton)
     const operatorSymbol = this.selectedOperatorButton.getText()
@@ -132,42 +108,42 @@ export class Padlock {
     const result = this.game.performCalculation(firstNumber, operatorSymbol, secondNumber)
     if (isNaN(result)) {
       this.resetSelectedButtons()
+      this.showState()
       return
     }
 
-    const oldState = this.numberButtons.map(button => this.getNumber(button))
-    this.setStateHistory([oldState, ...this.stateHistory])
-
-    this.setCalculating(true)
-    this.secondSelectedNumberButton!.hide(true)
-    this.setSelectedOperatorButton(null)
-    this.setSecondSelectedNumberButton(null)
-
-    this.firstSelectedNumberButton.setText(`${firstNumber}${operatorSymbol}${secondNumber}`)
-
-    setTimeout(() => {
-      this.firstSelectedNumberButton!.setText(String(result))
-      this.setCalculating(false)
-      const numbers = this.numberButtons.map(button => this.getNumber(button)).filter(number => !isNaN(number))
-      if (this.game.checkDeadEnd(numbers)) {
-        this.setDeadEnd(true)
-        return
-      }
-      if (this.game.checkGameOver(numbers)) {
-        this.openAndClosePadlock()
-        return
-      }
-    }, 1000)
+    this.numbersHistory.push([...this.currentNumbers]) // push a static copy of the current numbers
+    const firstNumberIndex = this.numberButtons.findIndex(button => button === this.firstSelectedNumberButton)
+    const secondNumberIndex = this.numberButtons.findIndex(button => button === this.secondSelectedNumberButton)
+    this.currentNumbers[firstNumberIndex] = NaN
+    this.currentNumbers[secondNumberIndex] = result
+    this.isCalculating = true
+    this.showState()
+    this.selectedOperatorButton = null
+    this.firstSelectedNumberButton = this.secondSelectedNumberButton
+    this.secondSelectedNumberButton = null
+    this.isCalculating = false
+    this.showState()
+    const validNumbers = this.currentNumbers.filter(number => !isNaN(number))
+    if (this.game.checkDeadEnd(validNumbers)) {
+      this.isDeadEnd = true
+      this.showState()
+      return
+    }
+    if (this.game.checkGameOver(validNumbers)) {
+      this.isGameOver = true
+      this.showState()
+      this.openAndClosePadlock()
+      return
+    }
   }
 
   private openAndClosePadlock(): void {
-    const padlock = document.getElementById('padlock')!
+    const shackle = document.querySelector('#shackle') as SVGGElement
+    shackle.classList.add('open')
     setTimeout(() => {
-      padlock.classList.add('open')
-      setTimeout(() => {
-        padlock.classList.remove('open')
-        setTimeout(() => this.start(), 1000)
-      }, 3000)
-    }, 500)
+      shackle.classList.remove('open')
+      setTimeout(() => this.start(), 1000)
+    }, 3000)
   }
 }

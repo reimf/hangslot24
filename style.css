@@ -46,7 +46,7 @@ body {
 /* ============================
    Button labels (SVG text)
    ============================ */
-.btn-label {
+.button-text {
   font-family: var(--font);
   font-size: 24px;
   font-weight: 700;
@@ -62,7 +62,7 @@ body {
   cursor: pointer;
 
   &:hover {
-    .btn-label {
+    .button-text {
       fill: #e67e22;
     }
   }
@@ -82,7 +82,7 @@ body {
       opacity: 1;
     }
 
-    .btn-label {
+    .button-text {
       fill: #fff;
     }
   }
@@ -95,7 +95,7 @@ body {
       fill: #3d5166;
     }
 
-    .btn-label {
+    .button-text {
       opacity: 0;
     }
   }
@@ -104,7 +104,7 @@ body {
 /* ============================
    Engraving text
    ============================ */
-.envgraved-text {
+.engraved-text {
   font-family: var(--font);
   font-size: 14px;
   font-weight: 700;
@@ -117,10 +117,10 @@ body {
 /* ============================
    Shackle animation
    ============================ */
-#shackleGroup {
+#shackle {
   transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-#padlock.open #shackleGroup {
-  transform: translateY(-90px);
+  &.open {
+    transform: translateY(-100px);
+  }
 }
