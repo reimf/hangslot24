@@ -1,31 +1,25 @@
-/* ============================
-   Reset & Base
-   ============================ */
-*,
-*::before,
-*::after {
+:root {
+  --accent-color: #e67e22;
+  --background-color: #1a252f;
+  --body-color: #2c3e50;
+  --button-color: #eaedf0;
+}
+
+* {
   box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
 }
 
-:root {
-  --accent: #e67e22;
-  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 body {
-  background: #1a252f;
+  background: var(--background-color);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font);
 }
 
-/* ============================
-   Game wrapper
-   ============================ */
 .game-wrapper {
   display: flex;
   align-items: center;
@@ -33,9 +27,6 @@ body {
   padding: 24px;
 }
 
-/* ============================
-   SVG padlock container
-   ============================ */
 #padlock {
   width: 340px;
   max-width: 95vw;
@@ -43,27 +34,38 @@ body {
   overflow: visible;
 }
 
-/* ============================
-   Button labels (SVG text)
-   ============================ */
-.button-text {
-  font-family: var(--font);
-  font-size: 24px;
-  font-weight: 700;
-  fill: #2c3e50;
-  pointer-events: none;
-  user-select: none;
+#shackle {
+  fill: #b0bec5;
+
+  path {
+    stroke: none;
+  }
 }
 
-/* ============================
-   Shared button group styles
-   ============================ */
+#body {
+  fill: var(--body-color);
+}
+
 .button {
   cursor: pointer;
 
+  rect {
+    fill: var(--button-color);
+  }
+
+  text {
+    font-size: 24px;
+    font-weight: 700;
+    fill: var(--background-color);
+    pointer-events: none;
+    user-select: none;
+    dominant-baseline: central;
+    text-anchor: middle;
+  }
+
   &:hover {
-    .button-text {
-      fill: #e67e22;
+    text {
+      fill: var(--accent-color);
     }
   }
 
@@ -72,53 +74,35 @@ body {
     pointer-events: none;
 
     rect {
-      opacity: 0.45;
+      opacity: 0.2;
     }
   }
 
   &.selected {
     rect {
-      fill: #e67e22;
+      fill: var(--accent-color);
       opacity: 1;
     }
 
-    .button-text {
+    text {
       fill: #fff;
     }
   }
-
-  &.hidden {
-    cursor: default;
-    pointer-events: none;
-
-    rect {
-      fill: #3d5166;
-    }
-
-    .button-text {
-      opacity: 0;
-    }
-  }
 }
 
-/* ============================
-   Engraving text
-   ============================ */
 .engraved-text {
-  font-family: var(--font);
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
-  fill: rgba(0, 0, 0, 0.38);
+  fill: rgba(0, 0, 0, 0.4);
   text-shadow: none;
   pointer-events: none;
   user-select: none;
+  text-anchor: end;
+  dominant-baseline: auto;
 }
 
-/* ============================
-   Shackle animation
-   ============================ */
 #shackle {
-  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.open {
     transform: translateY(-100px);

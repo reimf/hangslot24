@@ -5,14 +5,6 @@ export class Button {
     this.element = element
   }
 
-  public isUsable(): boolean {
-    return !this.element.classList.contains('disabled') && !this.element.classList.contains('hidden')
-  }
-
-  public hide(toggle: boolean): void {
-    this.element.classList.toggle('hidden', toggle)
-  }
-
   public disable(toggle: boolean): void {
     this.element.classList.toggle('disabled', toggle)
   }

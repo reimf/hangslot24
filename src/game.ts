@@ -1,10 +1,10 @@
 export class Game {
-  private readonly operations = new Map([
-    ['+', this.add],
-    ['−', this.subtract],
-    ['×', this.multiply],
-    ['÷', this.divide],
-  ])
+  private readonly operations = [
+    this.add,
+    this.subtract,
+    this.multiply,
+    this.divide,
+  ]
 
   private randomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min
@@ -33,12 +33,9 @@ export class Game {
         const otherNumbers = numbers.filter((_, index) => index !== i && index !== j)
         const a = numbers[i] as number
         const b = numbers[j] as number
-        const results = [
-          this.add(a, b),
-          this.subtract(a, b),
-          this.multiply(a, b),
-          this.divide(a, b),
-        ].filter(result => !isNaN(result))
+        const results = this.operations
+          .map(operation => operation(a, b))
+          .filter(result => !isNaN(result))
         return results.some(result => this.hasSolution([result, ...otherNumbers]))
       }
     }
@@ -61,8 +58,8 @@ export class Game {
     return b === 0 || a % b !== 0 ? NaN : a / b
   }
 
-  public performCalculation(number1: number, operator: string, number2: number): number {
-    const operation = this.operations.get(operator)!
+  public performCalculation(number1: number, operatorIndex: number, number2: number): number {
+    const operation = this.operations[operatorIndex]!
     return operation(number1, number2)
   }
 

@@ -1,6 +1,8 @@
 import { Button } from './button.js'
 import { Game } from './game.js'
 
+export type Index = -1 | 0 | 1 | 2 | 3
+
 export class Padlock {
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
@@ -9,12 +11,11 @@ export class Padlock {
 
   // State
   private currentNumbers: number[] = []
-  private firstSelectedNumberButton: Button|null = null
-  private secondSelectedNumberButton: Button|null = null
-  private selectedOperatorButton: Button|null = null
+  private firstSelectedNumberIndex: Index = -1
+  private secondSelectedNumberIndex: Index = -1
+  private selectedOperatorIndex: Index = -1
   private numbersHistory: number[][] = []
   private isDeadEnd: boolean = false
-  private isCalculating: boolean = false
   private isGameOver: boolean = false
 
   constructor() {
@@ -23,106 +24,92 @@ export class Padlock {
   }
 
   private wireButtons(): void {
-    this.numberButtons.forEach(button =>
-      button.addEventListener('click', () => button.isUsable() && this.onClickNumberButton(button))
+    this.numberButtons.forEach((button, index) =>
+      button.addEventListener('click', () => this.onClickNumberButton(index as Index))
     )
-    this.operatorButtons.forEach(button =>
-      button.addEventListener('click', () => button.isUsable() && this.onClickOperatorButton(button))
+    this.operatorButtons.forEach((button, index) =>
+      button.addEventListener('click', () => this.onClickOperatorButton(index as Index))
     )
-    this.undoButtons.forEach(button =>
-      button.addEventListener('click', () => button.isUsable() && this.onClickUndoButton(button))
+    this.undoButtons.forEach((button, index) =>
+      button.addEventListener('click', () => this.onClickUndoButton(index as Index))
     )
   }
 
   private start(): void {
     this.currentNumbers = this.game.generateNumbers()
+    this.firstSelectedNumberIndex = -1
+    this.secondSelectedNumberIndex = -1
+    this.selectedOperatorIndex = -1
     this.numbersHistory = []
-    this.isCalculating = false
     this.isDeadEnd = false
     this.isGameOver = false
-    this.resetSelectedButtons()
     this.showState()
   }
 
   private showState(): void {
-    this.numberButtons.forEach((button, column) => {
-      const value = this.currentNumbers[column]!
-      button.hide(isNaN(value))
-      button.disable(this.isCalculating || this.isDeadEnd || this.isGameOver)
-      button.select(this.firstSelectedNumberButton === button || this.secondSelectedNumberButton === button)
-      button.setText(String(value))
+    this.numberButtons.forEach((button, index) => {
+      const value = this.currentNumbers[index]!
+      button.setText(isNaN(value) ? '' : String(value))
+      button.disable(this.isDeadEnd || this.isGameOver || isNaN(value))
+      button.select(this.firstSelectedNumberIndex === index || this.secondSelectedNumberIndex === index)
     })
-    this.operatorButtons.forEach(button => {
-      button.disable(this.isCalculating || this.isDeadEnd || this.isGameOver)
-      button.select(this.selectedOperatorButton === button)
+    this.operatorButtons.forEach((button, index) => {
+      button.disable(this.isDeadEnd || this.isGameOver)
+      button.select(this.selectedOperatorIndex === index)
     })
     this.undoButtons.forEach(button => {
-      button.disable(this.isCalculating || this.isGameOver|| this.numbersHistory.length === 0)
+      button.disable(this.isGameOver || this.numbersHistory.length === 0)
     })
   }
 
-  private resetSelectedButtons() {
-    this.firstSelectedNumberButton = null
-    this.secondSelectedNumberButton = null
-    this.selectedOperatorButton = null
-  }
-
-  public getNumber(button: Button): number {
-    if (button.isUsable())
-      return parseInt(button.getText())
-    return NaN
-  }
-
-  private onClickUndoButton(_button: Button): void {
+  private onClickUndoButton(_index: Index): void {
     this.currentNumbers = this.numbersHistory.pop()!
-    this.resetSelectedButtons()
+    this.firstSelectedNumberIndex = -1
+    this.secondSelectedNumberIndex = -1
+    this.selectedOperatorIndex = -1
     this.isDeadEnd = false
     this.showState()
   }
 
-  private onClickOperatorButton(button: Button): void {
-    if (this.firstSelectedNumberButton === null)
+  private onClickOperatorButton(index: Index): void {
+    if (this.firstSelectedNumberIndex === -1)
       return
-    this.selectedOperatorButton = button
+    this.selectedOperatorIndex = index
     this.showState()
   }
 
-  private onClickNumberButton(button: Button): void {
-    if (this.firstSelectedNumberButton === button) {
-      this.firstSelectedNumberButton = null
-      this.selectedOperatorButton = null
+  private onClickNumberButton(index: Index): void {
+    if (this.firstSelectedNumberIndex === index) {
+      this.firstSelectedNumberIndex = -1
+      this.selectedOperatorIndex = -1
       this.showState()
       return
     }
-    if (this.firstSelectedNumberButton === null || this.selectedOperatorButton === null) {
-      this.firstSelectedNumberButton = button
+    if (this.firstSelectedNumberIndex === -1 || this.selectedOperatorIndex === -1) {
+      this.firstSelectedNumberIndex = index
       this.showState()
       return
     }
-    this.secondSelectedNumberButton = button
+    this.secondSelectedNumberIndex = index
     this.showState()
-    
-    const firstNumber = this.getNumber(this.firstSelectedNumberButton)
-    const operatorSymbol = this.selectedOperatorButton.getText()
-    const secondNumber = this.getNumber(this.secondSelectedNumberButton as Button)
-    const result = this.game.performCalculation(firstNumber, operatorSymbol, secondNumber)
+
+    const firstNumber = this.currentNumbers[this.firstSelectedNumberIndex]!
+    const secondNumber = this.currentNumbers[this.secondSelectedNumberIndex]!
+    const result = this.game.performCalculation(firstNumber, this.selectedOperatorIndex, secondNumber)
     if (isNaN(result)) {
-      this.resetSelectedButtons()
+      this.firstSelectedNumberIndex = -1
+      this.secondSelectedNumberIndex = -1
+      this.selectedOperatorIndex = -1
       this.showState()
       return
     }
 
     this.numbersHistory.push([...this.currentNumbers]) // push a static copy of the current numbers
-    const firstNumberIndex = this.numberButtons.findIndex(button => button === this.firstSelectedNumberButton)
-    const secondNumberIndex = this.numberButtons.findIndex(button => button === this.secondSelectedNumberButton)
-    this.currentNumbers[firstNumberIndex] = NaN
-    this.currentNumbers[secondNumberIndex] = result
-    this.isCalculating = true
-    this.showState()
-    this.selectedOperatorButton = null
-    this.firstSelectedNumberButton = this.secondSelectedNumberButton
-    this.secondSelectedNumberButton = null
-    this.isCalculating = false
+    this.currentNumbers[this.firstSelectedNumberIndex] = NaN
+    this.currentNumbers[this.secondSelectedNumberIndex] = result
+    this.selectedOperatorIndex = -1
+    this.firstSelectedNumberIndex = this.secondSelectedNumberIndex
+    this.secondSelectedNumberIndex = -1
     this.showState()
     const validNumbers = this.currentNumbers.filter(number => !isNaN(number))
     if (this.game.checkDeadEnd(validNumbers)) {
