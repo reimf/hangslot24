@@ -39,7 +39,32 @@ body {
 }
 
 #shackle {
-  fill: var(--padlock-shackle-color);
+  will-change: transform;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: 45px 300px;
+  transform: translateY(0px) scaleX(1);
+
+  path {
+    stroke: var(--padlock-shackle-color);
+    stroke-width: 50;
+    vector-effect: non-scaling-stroke;
+  }
+
+  &.up {
+    transform: translateY(-100px) scaleX(1);
+
+    &.left {
+      transform: translateY(-100px) scaleX(-1);
+
+      &.right {
+        transform: translateY(-100px) scaleX(1);
+
+        &.down {
+          transform: translateY(0px) scaleX(1);
+        }
+      }
+    }
+  }
 }
 
 #body {
@@ -116,10 +141,3 @@ body {
   dominant-baseline: auto;
 }
 
-#shackle {
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &.open {
-    transform: translateY(-100px);
-  }
-}
