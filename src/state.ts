@@ -59,13 +59,17 @@ export class State {
   public performCalculation(firstIndex: number, operatorIndex: number, secondIndex: number): boolean {
     const firstNumber = this.currentNumbers[firstIndex]!
     const secondNumber = this.currentNumbers[secondIndex]!
-    const result = this.game.performCalculation(firstNumber, operatorIndex, secondNumber)
-    
+    const resultOrdered = this.game.performCalculation(firstNumber, operatorIndex, secondNumber)
+    const resultReversed = this.game.performCalculation(secondNumber, operatorIndex, firstNumber)
+    const result = resultOrdered || resultReversed
     if (isNaN(result))
       return false
 
     const operatorSymbol = this.getOperatorSymbols()[operatorIndex]!
-    this.calculationHistory.push(`${firstNumber} ${operatorSymbol} ${secondNumber} = ${result}`)
+    const calculationOrdered = `${firstNumber} ${operatorSymbol} ${secondNumber} = ${result}`
+    const calculationReversed = `${secondNumber} ${operatorSymbol} ${firstNumber} = ${result}`
+    const calculation = resultOrdered ? calculationOrdered : calculationReversed
+    this.calculationHistory.push(calculation)
     this.numbersHistory.push([...this.currentNumbers])
     this.currentNumbers[firstIndex] = NaN
     this.currentNumbers[secondIndex] = result

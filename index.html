@@ -9,63 +9,61 @@
   <body>
     <svg id="padlock" viewBox="0 0 310 400" xmlns="http://www.w3.org/2000/svg">
       <g id="shackle">
-        <path fill="none" stroke-linecap="round" d="
-          M 45 300
+        <path fill="none" stroke-width="60" d="
+          M 50 300
           v -160
-          a 110 110 0 0 1 220 0 
+          a 105 105 0 0 1 210 0 
           v 60"
         />
       </g>
       <rect id="body" x="0" y="160" width="310" height="240" rx="20" />
       <g>
-        <g>
-          <g class="button number-button">
-            <rect x="20" y="180" width="60" height="60" rx="10" />
-            <text x="50" y="210"></text>
-          </g>
-          <g class="button number-button">
-            <rect x="90" y="180" width="60" height="60" rx="10" />
-            <text x="120" y="210"></text>
-          </g>
-          <g class="button number-button">
-            <rect x="160" y="180" width="60" height="60" rx="10" />
-            <text x="190" y="210"></text>
-          </g>
-          <g class="button number-button">
-            <rect x="230" y="180" width="60" height="60" rx="10" />
-            <text x="260" y="210"></text>
-          </g>
+        <g class="button number-button">
+          <rect x="20" y="180" width="60" height="60" rx="10" />
+          <text x="50" y="210"></text>
+        </g>
+        <g class="button number-button">
+          <rect x="90" y="180" width="60" height="60" rx="10" />
+          <text x="120" y="210"></text>
+        </g>
+        <g class="button number-button">
+          <rect x="160" y="180" width="60" height="60" rx="10" />
+          <text x="190" y="210"></text>
+        </g>
+        <g class="button number-button">
+          <rect x="230" y="180" width="60" height="60" rx="10" />
+          <text x="260" y="210"></text>
+        </g>
+      </g>
+      <g>
+        <g class="button operator-button">
+          <rect x="20" y="250" width="60" height="60" rx="10" />
+          <text x="50" y="280"></text>
+        </g>
+        <g class="button operator-button">
+          <rect x="90" y="250" width="60" height="60" rx="10" />
+          <text x="120" y="280"></text>
+        </g>
+        <g class="button operator-button">
+          <rect x="160" y="250" width="60" height="60" rx="10" />
+          <text x="190" y="280"></text>
+        </g>
+        <g class="button operator-button">
+          <rect x="230" y="250" width="60" height="60" rx="10" />
+          <text x="260" y="280"></text>
+        </g>
+      </g>
+      <g>
+        <g class="button undo-button">
+          <rect x="20" y="320" width="60" height="60" rx="10" />
+          <text x="50" y="350"></text>
         </g>
         <g>
-          <g class="button operator-button">
-            <rect x="20" y="250" width="60" height="60" rx="10" />
-            <text x="50" y="280"></text>
-          </g>
-          <g class="button operator-button">
-            <rect x="90" y="250" width="60" height="60" rx="10" />
-            <text x="120" y="280"></text>
-          </g>
-          <g class="button operator-button">
-            <rect x="160" y="250" width="60" height="60" rx="10" />
-            <text x="190" y="280"></text>
-          </g>
-          <g class="button operator-button">
-            <rect x="230" y="250" width="60" height="60" rx="10" />
-            <text x="260" y="280"></text>
-          </g>
+          <text class="calculation" x="90" y="330"></text>
+          <text class="calculation" x="90" y="350"></text>
+          <text class="calculation" x="90" y="370"></text>
         </g>
-        <g>
-          <g class="button undo-button">
-            <rect x="20" y="320" width="60" height="60" rx="10" />
-            <text x="50" y="350"></text>
-          </g>
-          <g>
-            <text class="calculation" x="90" y="330"></text>
-            <text class="calculation" x="90" y="350"></text>
-            <text class="calculation" x="90" y="370"></text>
-          </g>
-          <text id="brand" x="290" y="375">hangslot24</text>
-        </g>
+        <text id="brand" x="290" y="380">hangslot24</text>
       </g>
     </svg>
     <script type="module" src="dist/index.js"></script>

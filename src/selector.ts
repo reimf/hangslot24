@@ -43,7 +43,10 @@ export class Selector {
   }
 
   public selectOperator(index: number): void {
-    this.operatorIndex = index
+    if (this.operatorIndex === index)
+      this.operatorIndex = -1
+    else
+      this.operatorIndex = index
   }
 
   public toggleNumber(index: number): boolean {
