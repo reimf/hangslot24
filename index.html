@@ -9,67 +9,65 @@
 </head>
 
 <body>
-  <div class="game-wrapper">
-    <svg id="padlock" viewBox="0 0 360 410" xmlns="http://www.w3.org/2000/svg">
-      <g id="shackle">
-        <path d="
-            M 40,300 
-            v -160 
-            a 140,140 0 0 1 280,0 
-            v 60 
-            a 25,25 0 0 1 -50,0 
-            a 20,20 0 0 0 0,-40 
-            v -20 
-            a 90,90 0 0 0 -180,0 
-            v 160 
-            z" />
+  <svg id="padlock" viewBox="0 0 360 410" xmlns="http://www.w3.org/2000/svg">
+    <g id="shackle">
+      <path stroke="none" d="
+          M 40,300 
+          v -160 
+          a 140,140 0 0 1 280,0 
+          v 60 
+          a 25,25 0 0 1 -50,0 
+          a 20,20 0 0 0 0,-40 
+          v -20 
+          a 90,90 0 0 0 -180,0 
+          v 160 
+          z" />
+    </g>
+    <rect id="body" x="20" y="150" width="320" height="250" rx="20" />
+    <g>
+      <g class="button number-button" transform="translate(75,205)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
       </g>
-      <rect id="body" x="20" y="150" width="320" height="250" rx="20" />
-      <g>
-        <g class="button number-button" transform="translate(75,205)">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0"></text>
-        </g>
-        <g class="button number-button" transform="translate(145,205)">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0"></text>
-        </g>
-        <g class="button number-button" transform="translate(215,205)">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0"></text>
-        </g>
-        <g class="button number-button" transform="translate(285,205)">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0"></text>
-        </g>
+      <g class="button number-button" transform="translate(145,205)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
       </g>
-      <g>
-        <g class="button operator-button" transform="translate(75,275)" data-operatorname="add">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0">+</text>
-        </g>
-        <g class="button operator-button" transform="translate(145,275)" data-operatorname="subtract">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0">−</text>
-        </g>
-        <g class="button operator-button" transform="translate(215,275)" data-operatorname="multiply">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0">×</text>
-        </g>
-        <g class="button operator-button" transform="translate(285,275)" data-operatorname="divide">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0">÷</text>
-        </g>
+      <g class="button number-button" transform="translate(215,205)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
       </g>
-      <g>
-        <g class="button undo-button" transform="translate(75,345)">
-          <rect x="-30" y="-30" width="60" height="60" rx="10" />
-          <text x="0" y="0">↶</text>
-        </g>
+      <g class="button number-button" transform="translate(285,205)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
       </g>
-      <text x="315" y="375" class="engraved-text">hangslot24</text>
-    </svg>
-  </div>
+    </g>
+    <g>
+      <g class="button operator-button" transform="translate(75,275)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
+      </g>
+      <g class="button operator-button" transform="translate(145,275)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
+      </g>
+      <g class="button operator-button" transform="translate(215,275)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
+      </g>
+      <g class="button operator-button" transform="translate(285,275)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
+      </g>
+    </g>
+    <g>
+      <g class="button undo-button" transform="translate(75,345)">
+        <rect x="-30" y="-30" width="60" height="60" rx="10" />
+        <text x="0" y="0"></text>
+      </g>
+    </g>
+    <text class="engraved-text" x="315" y="375">hangslot24</text>
+  </svg>
   <script type="module" src="dist/index.js"></script>
 </body>
 
