@@ -36,7 +36,7 @@ export class Selector {
   }
 
   public selectNumber(index: number): void {
-    if (this.firstNumberIndex === -1 || this.operatorIndex === -1)
+    if (this.firstNumberIndex === -1)
       this.firstNumberIndex = index
     else
       this.secondNumberIndex = index
@@ -46,11 +46,16 @@ export class Selector {
     this.operatorIndex = index
   }
 
-  public toggleFirstNumber(index: number): boolean {
-    if (this.firstNumberIndex !== index)
-      return false
-    this.clear()
-    return true
+  public toggleNumber(index: number): boolean {
+    if (this.firstNumberIndex === index) {
+      this.moveSecondToFirst()
+      return true
+    }
+    if (this.secondNumberIndex === index) {
+      this.secondNumberIndex = -1
+      return true
+    }
+    return false
   }
 
   public clear(): void {

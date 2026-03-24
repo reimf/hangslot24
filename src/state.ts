@@ -4,6 +4,7 @@ export class State {
   private readonly game = new Game()
   private currentNumbers: number[] = []
   private numbersHistory: number[][] = []
+  private calculationHistory: string[] = []
   private deadEnd: boolean = false
   private gameOver: boolean = false
 
@@ -14,6 +15,7 @@ export class State {
   public reset(): void {
     this.currentNumbers = this.game.generateNumbers()
     this.numbersHistory = []
+    this.calculationHistory = []
     this.deadEnd = false
     this.gameOver = false
   }
@@ -45,8 +47,13 @@ export class State {
   public undo(): void {
     if (this.numbersHistory.length > 0) {
       this.currentNumbers = this.numbersHistory.pop()!
+      this.calculationHistory.pop()
       this.deadEnd = false
     }
+  }
+
+  public getCalculationHistory(): string[] {
+    return this.calculationHistory
   }
 
   public performCalculation(firstIndex: number, operatorIndex: number, secondIndex: number): boolean {
@@ -57,6 +64,8 @@ export class State {
     if (isNaN(result))
       return false
 
+    const operatorSymbol = this.getOperatorSymbols()[operatorIndex]!
+    this.calculationHistory.push(`${firstNumber} ${operatorSymbol} ${secondNumber} = ${result}`)
     this.numbersHistory.push([...this.currentNumbers])
     this.currentNumbers[firstIndex] = NaN
     this.currentNumbers[secondIndex] = result

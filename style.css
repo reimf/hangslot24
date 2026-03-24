@@ -7,11 +7,13 @@
   --button-text-color: #1a252f;
   --disabled-button-background-color: #364e65;
   --disabled-button-text-color: #364e65;
-  --engraved-text-color: #00000044;
   --hover-button-background-color: #f5d1b2;
   --hover-button-text-color: #1a252f;
   --selected-button-background-color: #e67e22;
   --selected-button-text-color: #ffffff;
+
+  --calculations-text-color: #e67e22;
+  --brand-color: #00000044;
 }
 
 * {
@@ -45,6 +47,8 @@ body {
 }
 
 .button {
+  user-select: none;
+
   rect {
     fill: var(--button-background-color);
   }
@@ -93,10 +97,19 @@ body {
   }
 }
 
-.engraved-text {
-  font-size: 18px;
+.calculation {
+  dominant-baseline: middle;
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--calculations-text-color);
+  pointer-events: none;
+  user-select: none;
+}
+
+#brand {
+  font-size: 14px;
   font-weight: 700;
-  fill: var(--engraved-text-color);
+  fill: var(--brand-color);
   pointer-events: none;
   user-select: none;
   text-anchor: end;
