@@ -1,8 +1,17 @@
 :root {
-  --accent-color: #e67e22;
-  --background-color: #1a252f;
-  --body-color: #2c3e50;
-  --button-color: #eaedf0;
+  --page-background-color: #1a252f;
+  --padlock-body-color: #2c3e50;
+  --padlock-shackle-color: #b0bec5;
+
+  --button-background-color: #eaedf0;
+  --button-text-color: #1a252f;
+  --disabled-button-background-color: #364e65;
+  --disabled-button-text-color: #364e65;
+  --engraved-text-color: #00000044;
+  --hover-button-background-color: #f5d1b2;
+  --hover-button-text-color: #1a252f;
+  --selected-button-background-color: #e67e22;
+  --selected-button-text-color: #ffffff;
 }
 
 * {
@@ -13,18 +22,11 @@
 }
 
 body {
-  background: var(--background-color);
+  background: var(--page-background-color);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.game-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
 }
 
 #padlock {
@@ -35,28 +37,22 @@ body {
 }
 
 #shackle {
-  fill: #b0bec5;
-
-  path {
-    stroke: none;
-  }
+  fill: var(--padlock-shackle-color);
 }
 
 #body {
-  fill: var(--body-color);
+  fill: var(--padlock-body-color);
 }
 
 .button {
-  cursor: pointer;
-
   rect {
-    fill: var(--button-color);
+    fill: var(--button-background-color);
   }
 
   text {
     font-size: 24px;
     font-weight: 700;
-    fill: var(--background-color);
+    fill: var(--button-text-color);
     pointer-events: none;
     user-select: none;
     dominant-baseline: central;
@@ -64,8 +60,12 @@ body {
   }
 
   &:hover {
+    rect {
+      fill: var(--hover-button-background-color);
+    }
+    
     text {
-      fill: var(--accent-color);
+      fill: var(--hover-button-text-color);
     }
   }
 
@@ -74,18 +74,21 @@ body {
     pointer-events: none;
 
     rect {
-      opacity: 0.2;
+      fill: var(--disabled-button-background-color);
+    }
+
+    text {
+      fill: var(--disabled-button-text-color);
     }
   }
 
   &.selected {
     rect {
-      fill: var(--accent-color);
-      opacity: 1;
+      fill: var(--selected-button-background-color);
     }
 
     text {
-      fill: #fff;
+      fill: var(--selected-button-text-color);
     }
   }
 }
@@ -93,8 +96,7 @@ body {
 .engraved-text {
   font-size: 18px;
   font-weight: 700;
-  fill: rgba(0, 0, 0, 0.4);
-  text-shadow: none;
+  fill: var(--engraved-text-color);
   pointer-events: none;
   user-select: none;
   text-anchor: end;
