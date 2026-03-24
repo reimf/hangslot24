@@ -2,8 +2,6 @@ import { Button } from './button.js'
 import { State } from './state.js'
 import { Selector } from './selector.js'
 
-export type Index = -1 | 0 | 1 | 2 | 3
-
 export class Padlock {
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
@@ -18,60 +16,73 @@ export class Padlock {
 
   private wireButtons(): void {
     this.numberButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickNumberButton(index as Index))
+      button.addEventListener('click', () => this.onClickNumberButton(index as number))
     )
     this.operatorButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickOperatorButton(index as Index))
+      button.addEventListener('click', () => this.onClickOperatorButton(index as number))
     )
     this.undoButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickUndoButton(index as Index))
+      button.addEventListener('click', () => this.onClickUndoButton(index as number))
     )
   }
 
   private start(): void {
     this.state.reset()
     this.selector.clear()
-    this.updateInterface()
+    this.updateButtons()
   }
 
-  private updateInterface(): void {
-    const numbers = this.state.getNumbers()
+  private updateButtons(): void {
+    this.updateNumbers(this.state.getNumbers())
+    this.updateOperators(this.state.getOperatorSymbols())
+    this.updateUndo(this.state.getUndoSymbols())
+  }
+
+  private updateNumbers(numbers: number[]): void {
     this.numberButtons.forEach((button, index) => {
       const value = numbers[index]!
       button.setText(isNaN(value) ? '' : String(value))
       button.disable(this.state.isDeadEnd() || this.state.isGameOver() || isNaN(value))
-      button.select(this.selector.isNumberSelected(index as Index))
+      button.select(this.selector.isNumberSelected(index as number))
     })
+  }
+
+  private updateOperators(operatorSymbols: string[]): void {
     this.operatorButtons.forEach((button, index) => {
+      button.setText(operatorSymbols[index]!)
       button.disable(this.state.isDeadEnd() || this.state.isGameOver())
-      button.select(this.selector.isOperatorSelected(index as Index))
+      button.select(this.selector.isOperatorSelected(index as number))
     })
-    this.undoButtons.forEach(button => {
+  }
+
+  private updateUndo(undoSymbols: string[]): void {
+    this.undoButtons.forEach((button, index) => {
+      button.setText(undoSymbols[index]!)
       button.disable(this.state.isGameOver() || !this.state.canUndo())
     })
   }
 
-  private onClickUndoButton(_index: Index): void {
+  private onClickUndoButton(_index: number): void {
     this.state.undo()
     this.selector.clear()
-    this.updateInterface()
+    this.updateButtons()
   }
 
-  private onClickOperatorButton(index: Index): void {
+  private onClickOperatorButton(index: number): void {
     if (!this.selector.hasFirstNumber())
       return
     this.selector.selectOperator(index)
-    this.updateInterface()
+    this.updateButtons()
   }
 
-  private onClickNumberButton(index: Index): void {
+  private onClickNumberButton(index: number): void {
     if (this.selector.toggleFirstNumber(index)) {
-      this.updateInterface()
+      this.updateButtons()
       return
     }
 
     this.selector.selectNumber(index)
-    this.updateInterface()
+    this.updateButtons()
 
     if (this.selector.isInProgress())
       return
@@ -84,13 +95,13 @@ export class Padlock {
 
     if (!success) {
       this.selector.clear()
-      this.updateInterface()
+      this.updateButtons()
       return
     }
 
     this.selector.clearOperator()
     this.selector.moveSecondToFirst()
-    this.updateInterface()
+    this.updateButtons()
 
     if (this.state.isGameOver())
       this.openAndClosePadlock()

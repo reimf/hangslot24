@@ -1,27 +1,25 @@
-import type { Index } from './padlock.js'
-
 export class Selector {
-  private firstNumberIndex: Index = -1
-  private secondNumberIndex: Index = -1
-  private operatorIndex: Index = -1
+  private firstNumberIndex: number = -1
+  private secondNumberIndex: number = -1
+  private operatorIndex: number = -1
 
-  public getFirstNumberIndex(): Index {
+  public getFirstNumberIndex(): number {
     return this.firstNumberIndex
   }
 
-  public getSecondNumberIndex(): Index {
+  public getSecondNumberIndex(): number {
     return this.secondNumberIndex
   }
 
-  public getOperatorIndex(): Index {
+  public getOperatorIndex(): number {
     return this.operatorIndex
   }
 
-  public isNumberSelected(index: Index): boolean {
+  public isNumberSelected(index: number): boolean {
     return this.firstNumberIndex === index || this.secondNumberIndex === index
   }
 
-  public isOperatorSelected(index: Index): boolean {
+  public isOperatorSelected(index: number): boolean {
     return this.operatorIndex === index
   }
 
@@ -37,18 +35,18 @@ export class Selector {
     return this.firstNumberIndex === -1 || this.operatorIndex === -1 || this.secondNumberIndex === -1
   }
 
-  public selectNumber(index: Index): void {
+  public selectNumber(index: number): void {
     if (this.firstNumberIndex === -1 || this.operatorIndex === -1)
       this.firstNumberIndex = index
     else
       this.secondNumberIndex = index
   }
 
-  public selectOperator(index: Index): void {
+  public selectOperator(index: number): void {
     this.operatorIndex = index
   }
 
-  public toggleFirstNumber(index: Index): boolean {
+  public toggleFirstNumber(index: number): boolean {
     if (this.firstNumberIndex !== index)
       return false
     this.clear()

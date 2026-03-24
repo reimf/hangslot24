@@ -22,6 +22,14 @@ export class State {
     return this.currentNumbers
   }
 
+  public getOperatorSymbols(): string[] {
+    return ['+', '−', '×', '÷']
+  }
+
+  public getUndoSymbols(): string[] {
+    return ['↶']
+  }
+
   public isDeadEnd(): boolean {
     return this.deadEnd
   }
