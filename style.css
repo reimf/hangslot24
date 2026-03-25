@@ -40,7 +40,7 @@ body {
 #shackle {
   will-change: transform;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: 40px 0px;
+  transform-origin: 50px 0px;
   transform: translateY(0px) scaleX(1);
 
   path {

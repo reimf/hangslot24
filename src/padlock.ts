@@ -98,11 +98,9 @@ export class Padlock {
     if (this.selector.isInProgress())
       return
 
-    const success = this.state.performCalculation(
-      this.selector.getFirstNumberIndex(),
-      this.selector.getOperatorIndex(),
-      this.selector.getSecondNumberIndex()
-    )
+    const [firstNumberIndex, secondNumberIndex] = this.selector.getNumberIndices()
+    const operatorIndex = this.selector.getOperatorIndex()
+    const success = this.state.performCalculation(firstNumberIndex!, operatorIndex!, secondNumberIndex!)
 
     if (!success) {
       this.selector.clear()
@@ -111,7 +109,7 @@ export class Padlock {
     }
 
     this.selector.clearOperator()
-    this.selector.moveSecondToFirst()
+    this.selector.clearFirstNumber()
     this.updateButtons()
 
     if (this.state.isGameOver())
@@ -120,10 +118,11 @@ export class Padlock {
 
   private openAndClosePadlock(): void {
     const shackle = document.querySelector('#shackle') as SVGGElement
+    shackle.classList.remove('up', 'left', 'right', 'down')
     setTimeout(() => shackle.classList.add('up'), 0)
     setTimeout(() => shackle.classList.add('left'), 1000)
     setTimeout(() => shackle.classList.add('right'), 2000)
     setTimeout(() => shackle.classList.add('down'), 3000)
-    setTimeout(() => { shackle.classList.remove('up', 'left', 'right', 'down'); this.start() }, 4000)
+    setTimeout(() => this.start(), 4000)
   }
 }

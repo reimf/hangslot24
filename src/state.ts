@@ -1,10 +1,14 @@
 import { Game } from './game.js'
 
+interface Change {
+  numbers: number[]
+  calculation: string
+}
+
 export class State {
   private readonly game = new Game()
   private currentNumbers: number[] = []
-  private numbersHistory: number[][] = []
-  private calculationHistory: string[] = []
+  private changeHistory: Change[] = []
   private deadEnd: boolean = false
   private gameOver: boolean = false
 
@@ -14,8 +18,7 @@ export class State {
 
   public reset(): void {
     this.currentNumbers = this.game.generateNumbers()
-    this.numbersHistory = []
-    this.calculationHistory = []
+    this.changeHistory = []
     this.deadEnd = false
     this.gameOver = false
   }
@@ -41,19 +44,19 @@ export class State {
   }
 
   public canUndo(): boolean {
-    return this.numbersHistory.length > 0
+    return this.changeHistory.length > 0
   }
 
   public undo(): void {
-    if (this.numbersHistory.length > 0) {
-      this.currentNumbers = this.numbersHistory.pop()!
-      this.calculationHistory.pop()
+    const change = this.changeHistory.pop()
+    if (change !== undefined) {
+      this.currentNumbers = change.numbers
       this.deadEnd = false
     }
   }
 
   public getCalculationHistory(): string[] {
-    return this.calculationHistory
+    return this.changeHistory.map(change => change.calculation)
   }
 
   public performCalculation(firstIndex: number, operatorIndex: number, secondIndex: number): boolean {
@@ -69,8 +72,8 @@ export class State {
     const calculationOrdered = `${firstNumber} ${operatorSymbol} ${secondNumber} = ${result}`
     const calculationReversed = `${secondNumber} ${operatorSymbol} ${firstNumber} = ${result}`
     const calculation = resultOrdered ? calculationOrdered : calculationReversed
-    this.calculationHistory.push(calculation)
-    this.numbersHistory.push([...this.currentNumbers])
+
+    this.changeHistory.push({ numbers: [...this.currentNumbers], calculation })
     this.currentNumbers[firstIndex] = NaN
     this.currentNumbers[secondIndex] = result
 
