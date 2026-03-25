@@ -35,6 +35,10 @@ export class State {
     return ['↶']
   }
 
+  public getHintSymbols(): string[] {
+    return ['ⓘ']
+  }
+
   public isDeadEnd(): boolean {
     return this.deadEnd
   }
@@ -51,6 +55,14 @@ export class State {
     const change = this.changeHistory.pop()!
     this.currentNumbers = change.numbers
     this.deadEnd = false
+  }
+
+  public applyHint(): number {
+    const move = this.game.getHint(this.currentNumbers)!
+    const firstIndex = this.currentNumbers.indexOf(move.a)
+    const secondIndex = this.currentNumbers.lastIndexOf(move.b)
+    this.performCalculation(firstIndex, move.operatorIndex, secondIndex)
+    return secondIndex
   }
 
   public getCalculationHistory(): string[] {

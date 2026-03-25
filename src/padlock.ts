@@ -6,6 +6,7 @@ export class Padlock {
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
   private readonly undoButtons = Array.from(document.querySelectorAll<SVGElement>('.undo-button')).map(el => new Button(el))
+  private readonly hintButtons = Array.from(document.querySelectorAll<SVGElement>('.hint-button')).map(el => new Button(el))
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
   private readonly state = new State()
   private readonly selector = new Selector()
@@ -25,6 +26,34 @@ export class Padlock {
     this.undoButtons.forEach((button, index) =>
       button.addEventListener('click', () => this.onClickUndoButton(index))
     )
+    this.hintButtons.forEach((button, index) =>
+      button.addEventListener('click', () => this.onClickHintButton(index))
+    )
+  }
+
+  private onClickNumberButton(index: number): void {
+    this.selector.selectNumber(index)
+    this.updateButtons()
+    this.tryCalculate()
+  }
+
+  private onClickOperatorButton(index: number): void {
+    this.selector.selectOperator(index)
+    this.updateButtons()
+    this.tryCalculate()
+  }
+
+  private onClickUndoButton(_index: number): void {
+    this.state.undo()
+    this.selector.clear()
+    this.updateButtons()
+  }
+
+  private onClickHintButton(_index: number): void {
+    const resultIndex = this.state.applyHint()
+    this.selector.clear()
+    this.selector.selectNumber(resultIndex)
+    this.updateButtons()
   }
 
   private start(): void {
@@ -37,14 +66,8 @@ export class Padlock {
     this.updateNumbers(this.state.getNumbers())
     this.updateOperators(this.state.getOperatorSymbols())
     this.updateUndo(this.state.getUndoSymbols())
+    this.updateHint(this.state.getHintSymbols())
     this.updateCalculationHistory()
-  }
-
-  private updateCalculationHistory(): void {
-    const history = this.state.getCalculationHistory()
-    this.calculationTexts.forEach((text, index) => {
-      text.textContent = history[index] ?? ''
-    })
   }
 
   private updateNumbers(numbers: number[]): void {
@@ -71,22 +94,18 @@ export class Padlock {
     })
   }
 
-  private onClickUndoButton(_index: number): void {
-    this.state.undo()
-    this.selector.clear()
-    this.updateButtons()
+  private updateHint(hintSymbols: string[]): void {
+    this.hintButtons.forEach((button, index) => {
+      button.setText(hintSymbols[index]!)
+      button.disable(this.state.getCalculationHistory().length > 0)
+    })
   }
 
-  private onClickOperatorButton(index: number): void {
-    this.selector.selectOperator(index)
-    this.updateButtons()
-    this.tryCalculate()
-  }
-
-  private onClickNumberButton(index: number): void {
-    this.selector.selectNumber(index)
-    this.updateButtons()
-    this.tryCalculate()
+  private updateCalculationHistory(): void {
+    const history = this.state.getCalculationHistory()
+    this.calculationTexts.forEach((text, index) => {
+      text.textContent = history[index] ?? ''
+    })
   }
 
   private tryCalculate(): void {

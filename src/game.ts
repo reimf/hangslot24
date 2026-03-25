@@ -45,8 +45,27 @@ export class Game {
     return false
   }
 
-  public getHint(_numbers: number[]): any {
-
+  public getHint(numbers: number[]): Move | null {
+    const shuffled = [...numbers]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!]
+    }
+    for (let i = 0; i < shuffled.length; i++) {
+      for (let j = 0; j < shuffled.length; j++) {
+        if (i === j)
+          continue
+        const otherNumbers = shuffled.filter((_, index) => index !== i && index !== j)
+        const a = shuffled[i]!
+        const b = shuffled[j]!
+        for (let operatorIndex = 0; operatorIndex < this.operations.length; operatorIndex++) {
+          const result = this.operations[operatorIndex]!(a, b)
+          if (!isNaN(result) && this.hasSolution([result, ...otherNumbers]))
+            return { a, operatorIndex, b }
+        }
+      }
+    }
+    return null
   }
 
   private add(a: number, b: number): number {
