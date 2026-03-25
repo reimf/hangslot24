@@ -1,19 +1,17 @@
 :root {
-  --page-background-color: #1a252f;
-  --padlock-body-color: #2c3e50;
-  --padlock-shackle-color: #b0bec5;
+  --page-background: #1a252f;
+  --padlock-body: #2c3e50;
+  --padlock-shackle: #b0bec5;
 
-  --button-background-color: #eaedf0;
-  --button-text-color: #1a252f;
-  --disabled-button-background-color: #364e65;
-  --disabled-button-text-color: #364e65;
-  --hover-button-background-color: #f5d1b2;
-  --hover-button-text-color: #1a252f;
-  --selected-button-background-color: #e67e22;
-  --selected-button-text-color: #ffffff;
+  --button-background: #eaedf0;
+  --button-text: #1a252f;
+  --disabled-button-background: #364e65;
+  --disabled-button-text: #364e65;
+  --selected-button-background: #e67e22;
+  --selected-button-text: #ffffff;
 
-  --calculations-text-color: #e67e22;
-  --brand-color: #00000044;
+  --calculation-text: #e67e22;
+  --brand-text: #00000044;
 }
 
 * {
@@ -24,7 +22,7 @@
 }
 
 body {
-  background: var(--page-background-color);
+  background: var(--page-background);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -44,7 +42,7 @@ body {
   transform: translateY(0px) scaleX(1);
 
   path {
-    stroke: var(--padlock-shackle-color);
+    stroke: var(--padlock-shackle);
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
   }
@@ -67,34 +65,24 @@ body {
 }
 
 #body {
-  fill: var(--padlock-body-color);
+  fill: var(--padlock-body);
 }
 
 .button {
   user-select: none;
 
   rect {
-    fill: var(--button-background-color);
+    fill: var(--button-background);
   }
 
   text {
     font-size: 24px;
     font-weight: 700;
-    fill: var(--button-text-color);
+    fill: var(--button-text);
     pointer-events: none;
     user-select: none;
     dominant-baseline: central;
     text-anchor: middle;
-  }
-
-  &:hover {
-    rect {
-      fill: var(--hover-button-background-color);
-    }
-    
-    text {
-      fill: var(--hover-button-text-color);
-    }
   }
 
   &.disabled {
@@ -102,21 +90,21 @@ body {
     pointer-events: none;
 
     rect {
-      fill: var(--disabled-button-background-color);
+      fill: var(--disabled-button-background);
     }
 
     text {
-      fill: var(--disabled-button-text-color);
+      fill: var(--disabled-button-text);
     }
   }
 
   &.selected {
     rect {
-      fill: var(--selected-button-background-color);
+      fill: var(--selected-button-background);
     }
 
     text {
-      fill: var(--selected-button-text-color);
+      fill: var(--selected-button-text);
     }
   }
 }
@@ -125,7 +113,7 @@ body {
   dominant-baseline: middle;
   font-size: 14px;
   font-weight: 600;
-  fill: var(--calculations-text-color);
+  fill: var(--calculation-text);
   pointer-events: none;
   user-select: none;
 }
@@ -133,7 +121,7 @@ body {
 #brand {
   font-size: 14px;
   font-weight: 700;
-  fill: var(--brand-color);
+  fill: var(--brand-text);
   pointer-events: none;
   user-select: none;
   text-anchor: end;
