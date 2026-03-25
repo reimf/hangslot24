@@ -1,12 +1,12 @@
 export class Selector {
   private numberIndices: number[] = []
-  private operatorIndex: number|undefined = undefined
+  private operatorIndex: number | undefined = undefined
 
   public getNumberIndices(): number[] {
     return this.numberIndices
   }
 
-  public getOperatorIndex(): number|undefined {
+  public getOperatorIndex(): number | undefined {
     return this.operatorIndex
   }
 
@@ -23,8 +23,13 @@ export class Selector {
   }
 
   public selectNumber(index: number): void {
-    if (this.numberIndices.length < 2)
+    const position = this.numberIndices.indexOf(index)
+    if (position !== -1)
+      this.numberIndices.splice(position, 1)
+    else if (this.numberIndices.length < 2)
       this.numberIndices.push(index)
+    else
+      this.numberIndices.splice(1, 1, index)
   }
 
   public selectOperator(index: number): void {
@@ -34,24 +39,8 @@ export class Selector {
       this.operatorIndex = index
   }
 
-  public toggleNumber(index: number): boolean {
-    const position = this.numberIndices.indexOf(index)
-    if (position === -1)
-      return false
-    this.numberIndices.splice(position, 1)
-    return true
-  }
-
   public clear(): void {
     this.numberIndices = []
     this.operatorIndex = undefined
-  }
-
-  public clearOperator(): void {
-    this.operatorIndex = undefined
-  }
-
-  public clearFirstNumber(): void {
-    this.numberIndices.splice(0, 1)
   }
 }

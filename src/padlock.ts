@@ -84,11 +84,6 @@ export class Padlock {
   }
 
   private onClickNumberButton(index: number): void {
-    if (this.selector.toggleNumber(index)) {
-      this.updateButtons()
-      return
-    }
-
     this.selector.selectNumber(index)
     this.updateButtons()
     this.tryCalculate()
@@ -108,8 +103,8 @@ export class Padlock {
       return
     }
 
-    this.selector.clearOperator()
-    this.selector.clearFirstNumber()
+    this.selector.clear()
+    this.selector.selectNumber(secondNumberIndex!)
     this.updateButtons()
 
     if (this.state.isGameOver())
