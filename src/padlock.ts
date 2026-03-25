@@ -113,11 +113,14 @@ export class Padlock {
 
   private openAndClosePadlock(): void {
     const shackle = document.querySelector('#shackle') as SVGGElement
-    shackle.classList.remove('up', 'left', 'right', 'down')
+    
     setTimeout(() => shackle.classList.add('up'), 0)
     setTimeout(() => shackle.classList.add('left'), 1000)
     setTimeout(() => shackle.classList.add('right'), 2000)
     setTimeout(() => shackle.classList.add('down'), 3000)
-    setTimeout(() => this.start(), 4000)
+    setTimeout(() => {
+      shackle.classList.remove(...Array.from(shackle.classList))
+      this.start()
+    }, 4000)
   }
 }
