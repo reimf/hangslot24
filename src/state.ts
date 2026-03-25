@@ -48,11 +48,9 @@ export class State {
   }
 
   public undo(): void {
-    const change = this.changeHistory.pop()
-    if (change !== undefined) {
-      this.currentNumbers = change.numbers
-      this.deadEnd = false
-    }
+    const change = this.changeHistory.pop()!
+    this.currentNumbers = change.numbers
+    this.deadEnd = false
   }
 
   public getCalculationHistory(): string[] {
@@ -62,8 +60,10 @@ export class State {
   public performCalculation(firstIndex: number, operatorIndex: number, secondIndex: number): boolean {
     const firstNumber = this.currentNumbers[firstIndex]!
     const secondNumber = this.currentNumbers[secondIndex]!
-    const resultOrdered = this.game.performCalculation(firstNumber, operatorIndex, secondNumber)
-    const resultReversed = this.game.performCalculation(secondNumber, operatorIndex, firstNumber)
+    const moveOrdered = { a: firstNumber, operatorIndex, b: secondNumber}
+    const moveReversed = { a: secondNumber, operatorIndex, b: firstNumber}
+    const resultOrdered = this.game.performCalculation(moveOrdered)
+    const resultReversed = this.game.performCalculation(moveReversed)
     const result = resultOrdered || resultReversed
     if (isNaN(result))
       return false

@@ -17,13 +17,13 @@ export class Padlock {
 
   private wireButtons(): void {
     this.numberButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickNumberButton(index as number))
+      button.addEventListener('click', () => this.onClickNumberButton(index))
     )
     this.operatorButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickOperatorButton(index as number))
+      button.addEventListener('click', () => this.onClickOperatorButton(index))
     )
     this.undoButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickUndoButton(index as number))
+      button.addEventListener('click', () => this.onClickUndoButton(index))
     )
   }
 
@@ -52,7 +52,7 @@ export class Padlock {
       const value = numbers[index]!
       button.setText(isNaN(value) ? '' : String(value))
       button.disable(this.state.isDeadEnd() || this.state.isGameOver() || isNaN(value))
-      button.select(this.selector.isNumberSelected(index as number))
+      button.select(this.selector.isNumberSelected(index))
     })
   }
 
@@ -60,7 +60,7 @@ export class Padlock {
     this.operatorButtons.forEach((button, index) => {
       button.setText(operatorSymbols[index]!)
       button.disable(this.state.isDeadEnd() || this.state.isGameOver())
-      button.select(this.selector.isOperatorSelected(index as number))
+      button.select(this.selector.isOperatorSelected(index))
     })
   }
 

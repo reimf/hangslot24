@@ -1,4 +1,11 @@
+export interface Move {
+  a: number
+  operatorIndex: number
+  b: number
+}
+
 export class Game {
+  private readonly TWENTYFOUR = 24
   private readonly operations = [
     this.add,
     this.subtract,
@@ -12,12 +19,7 @@ export class Game {
 
   public generateNumbers(): number[] {
     while (true) {
-      const numbers = [
-        this.randomInt(1, 9),
-        this.randomInt(1, 9),
-        this.randomInt(1, 9),
-        this.randomInt(1, 9),
-      ]
+      const numbers = Array.from({ length: 4 }, () => this.randomInt(1, 9))
       if (this.hasSolution(numbers))
         return numbers
     }
@@ -25,21 +27,26 @@ export class Game {
 
   private hasSolution(numbers: number[]): boolean {
     if (numbers.length === 1)
-      return numbers[0] === 24
+      return numbers[0] === this.TWENTYFOUR
     for (let i = 0; i < numbers.length; i++) {
       for (let j = 0; j < numbers.length; j++) {
         if (i === j)
           continue
         const otherNumbers = numbers.filter((_, index) => index !== i && index !== j)
-        const a = numbers[i] as number
-        const b = numbers[j] as number
+        const a = numbers[i]!
+        const b = numbers[j]!
         const results = this.operations
           .map(operation => operation(a, b))
           .filter(result => !isNaN(result))
-        return results.some(result => this.hasSolution([result, ...otherNumbers]))
+        if (results.some(result => this.hasSolution([result, ...otherNumbers])))
+          return true
       }
     }
     return false
+  }
+
+  public getHint(_numbers: number[]): any {
+
   }
 
   private add(a: number, b: number): number {
@@ -58,16 +65,16 @@ export class Game {
     return b === 0 || a % b !== 0 ? NaN : a / b
   }
 
-  public performCalculation(number1: number, operatorIndex: number, number2: number): number {
-    const operation = this.operations[operatorIndex]!
-    return operation(number1, number2)
+  public performCalculation(move: Move): number {
+    const operation = this.operations[move.operatorIndex]!
+    return operation(move.a, move.b)
   }
 
   public checkDeadEnd(numbers: number[]): boolean {
-    return numbers.length === 1 && numbers[0] !== 24
+    return numbers.length === 1 && numbers[0] !== this.TWENTYFOUR
   }
 
   public checkGameOver(numbers: number[]): boolean {
-    return numbers.length === 1 && numbers[0] === 24
+    return numbers.length === 1 && numbers[0] === this.TWENTYFOUR
   }
 }

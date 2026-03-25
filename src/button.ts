@@ -17,10 +17,6 @@ export class Button {
     this.element.querySelector('text')!.textContent = text
   }
 
-  public getText(): string {
-    return this.element.querySelector('text')!.textContent!
-  }
-
   public addEventListener(type: string, listener: EventListener): void {
     this.element.addEventListener(type, listener)
   }
