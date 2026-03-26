@@ -1,7 +1,5 @@
 export class Move {
-  private static readonly operations = [Move.add, Move.subtract, Move.multiply, Move.divide]
   public static readonly OPERATOR_SYMBOLS = ['+', '−', '×', '÷']
-  public static readonly TARGET = 24
 
   public readonly numbers: number[]
   public readonly firstNumberIndex: number
@@ -30,8 +28,8 @@ export class Move {
     this.isValid = !isNaN(this.result)
     this.allNewNumbers = this.numbers.with(this.firstNumberIndex, NaN).with(this.secondNumberIndex, this.result)
     this.validNewNumbers = this.allNewNumbers.filter(number => !isNaN(number))
-    this.isDeadEnd = this.validNewNumbers.length === 1 && this.validNewNumbers[0] !== Move.TARGET
-    this.isGameOver = this.validNewNumbers.length === 1 && this.validNewNumbers[0] === Move.TARGET
+    this.isDeadEnd = this.validNewNumbers.length === 1 && this.validNewNumbers[0] !== 24
+    this.isGameOver = this.validNewNumbers.length === 1 && this.validNewNumbers[0] === 24
     const operatorSymbol = Move.OPERATOR_SYMBOLS[this.operatorIndex]!
     this.calculation = `${firstNumber} ${operatorSymbol} ${secondNumber} = ${this.result}`
   }
@@ -51,4 +49,6 @@ export class Move {
   private static divide(firstNumber: number, secondNumber: number): number {
     return secondNumber === 0 || firstNumber % secondNumber !== 0 ? NaN : firstNumber / secondNumber
   }
+
+  private static readonly operations = [Move.add, Move.subtract, Move.multiply, Move.divide]
 }

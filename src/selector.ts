@@ -1,9 +1,7 @@
-import { Move } from './move.js'
-
 export class Selector {
-  private firstNumberIndex: number|undefined = undefined
-  private secondNumberIndex: number|undefined = undefined
-  private operatorIndex: number|undefined = undefined
+  public firstNumberIndex: number|undefined = undefined
+  public secondNumberIndex: number|undefined = undefined
+  public operatorIndex: number|undefined = undefined
 
   public selectNumber(index: number): void {
     if (this.firstNumberIndex === index)
@@ -43,9 +41,5 @@ export class Selector {
     this.firstNumberIndex = newFirstNumberIndex
     this.secondNumberIndex = undefined
     this.operatorIndex = undefined
-  }
-
-  public getMove(numbers: number[]): Move {
-    return new Move(numbers, this.firstNumberIndex!, this.operatorIndex!, this.secondNumberIndex!)
   }
 }
