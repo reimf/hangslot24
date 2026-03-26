@@ -1,12 +1,13 @@
 import { Button } from './button.js'
+import { Move } from './move.js'
 import { State } from './state.js'
 import { Selector } from './selector.js'
 
 export class Padlock {
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
-  private readonly undoButtons = Array.from(document.querySelectorAll<SVGElement>('.undo-button')).map(el => new Button(el))
-  private readonly hintButtons = Array.from(document.querySelectorAll<SVGElement>('.hint-button')).map(el => new Button(el))
+  private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
+  private readonly hintButton = new Button(document.querySelector<SVGElement>('.hint-button')!)
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
   private readonly state = new State()
   private readonly selector = new Selector()
@@ -23,12 +24,8 @@ export class Padlock {
     this.operatorButtons.forEach((button, index) =>
       button.addEventListener('click', () => this.onClickOperatorButton(index))
     )
-    this.undoButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickUndoButton(index))
-    )
-    this.hintButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickHintButton(index))
-    )
+    this.undoButton.addEventListener('click', () => this.onClickUndoButton())
+    this.hintButton.addEventListener('click', () => this.onClickHintButton())
   }
 
   private onClickNumberButton(index: number): void {
@@ -43,16 +40,15 @@ export class Padlock {
     this.tryCalculate()
   }
 
-  private onClickUndoButton(_index: number): void {
+  private onClickUndoButton(): void {
     this.state.undo()
     this.selector.clear()
     this.updateButtons()
   }
 
-  private onClickHintButton(_index: number): void {
+  private onClickHintButton(): void {
     const resultIndex = this.state.applyHint()
-    this.selector.clear()
-    this.selector.selectNumber(resultIndex)
+    this.selector.clear(resultIndex)
     this.updateButtons()
   }
 
@@ -64,10 +60,10 @@ export class Padlock {
 
   private updateButtons(): void {
     this.updateNumbers(this.state.getNumbers())
-    this.updateOperators(this.state.getOperatorSymbols())
-    this.updateUndo(this.state.getUndoSymbols())
-    this.updateHint(this.state.getHintSymbols())
-    this.updateCalculationHistory()
+    this.updateOperators()
+    this.updateUndo()
+    this.updateHint()
+    this.updateCalculations()
   }
 
   private updateNumbers(numbers: number[]): void {
@@ -79,32 +75,28 @@ export class Padlock {
     })
   }
 
-  private updateOperators(operatorSymbols: string[]): void {
+  private updateOperators(): void {
     this.operatorButtons.forEach((button, index) => {
-      button.setText(operatorSymbols[index]!)
+      button.setText(Move.OPERATOR_SYMBOLS[index]!)
       button.disable(this.state.isDeadEnd() || this.state.isGameOver())
       button.select(this.selector.isOperatorSelected(index))
     })
   }
 
-  private updateUndo(undoSymbols: string[]): void {
-    this.undoButtons.forEach((button, index) => {
-      button.setText(undoSymbols[index]!)
-      button.disable(this.state.isGameOver() || !this.state.canUndo())
-    })
+  private updateUndo(): void {
+    this.undoButton.setText(State.UNDO_SYMBOL)
+    this.undoButton.disable(this.state.isGameOver() || !this.state.canUndo())
   }
 
-  private updateHint(hintSymbols: string[]): void {
-    this.hintButtons.forEach((button, index) => {
-      button.setText(hintSymbols[index]!)
-      button.disable(this.state.getCalculationHistory().length > 0)
-    })
+  private updateHint(): void {
+    this.hintButton.setText(State.HINT_SYMBOL)
+    this.hintButton.disable(this.state.getCalculations().length > 0)
   }
 
-  private updateCalculationHistory(): void {
-    const history = this.state.getCalculationHistory()
+  private updateCalculations(): void {
+    const calculations = this.state.getCalculations()
     this.calculationTexts.forEach((text, index) => {
-      text.textContent = history[index] ?? ''
+      text.textContent = calculations[index] ?? ''
     })
   }
 
@@ -112,34 +104,35 @@ export class Padlock {
     if (this.selector.isInProgress())
       return
 
-    const [firstNumberIndex, secondNumberIndex] = this.selector.getNumberIndices()
-    const operatorIndex = this.selector.getOperatorIndex()
-    const success = this.state.performCalculation(firstNumberIndex!, operatorIndex!, secondNumberIndex!)
-
-    if (!success) {
+    const move = this.selector.getMove(this.state.getNumbers())
+    if (!this.state.makeMove(move)) {
       this.selector.clear()
       this.updateButtons()
       return
     }
 
-    this.selector.clear()
-    this.selector.selectNumber(secondNumberIndex!)
+    this.selector.clear(move.secondNumberIndex)
     this.updateButtons()
 
     if (this.state.isGameOver())
       this.openAndClosePadlock()
   }
 
-  private openAndClosePadlock(): void {
+  private delay(milliseconds: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+  }
+
+  private async openAndClosePadlock(): Promise<void> {
     const shackle = document.querySelector('#shackle') as SVGGElement
-    
-    setTimeout(() => shackle.classList.add('up'), 0)
-    setTimeout(() => shackle.classList.add('left'), 1000)
-    setTimeout(() => shackle.classList.add('right'), 2000)
-    setTimeout(() => shackle.classList.add('down'), 3000)
-    setTimeout(() => {
-      shackle.classList.remove(...Array.from(shackle.classList))
-      this.start()
-    }, 4000)
+    shackle.classList.add('up')
+    await this.delay(1000)
+    shackle.classList.add('left')
+    await this.delay(1000)
+    shackle.classList.add('right')
+    await this.delay(1000)
+    shackle.classList.add('down')
+    await this.delay(1000)
+    shackle.classList.remove(...Array.from(shackle.classList))
+    this.start()
   }
 }

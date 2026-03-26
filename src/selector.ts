@@ -1,35 +1,23 @@
+import { Move } from './move.js'
+
 export class Selector {
-  private numberIndices: number[] = []
-  private operatorIndex: number | undefined = undefined
-
-  public getNumberIndices(): number[] {
-    return this.numberIndices
-  }
-
-  public getOperatorIndex(): number | undefined {
-    return this.operatorIndex
-  }
-
-  public isNumberSelected(index: number): boolean {
-    return this.numberIndices.includes(index)
-  }
-
-  public isOperatorSelected(index: number): boolean {
-    return this.operatorIndex === index
-  }
-
-  public isInProgress(): boolean {
-    return this.numberIndices.length < 2 || this.operatorIndex === undefined
-  }
+  private firstNumberIndex: number|undefined = undefined
+  private secondNumberIndex: number|undefined = undefined
+  private operatorIndex: number|undefined = undefined
 
   public selectNumber(index: number): void {
-    const position = this.numberIndices.indexOf(index)
-    if (position !== -1)
-      this.numberIndices.splice(position, 1)
-    else if (this.numberIndices.length < 2)
-      this.numberIndices.push(index)
-    else
-      this.numberIndices.splice(1, 1, index)
+    if (this.firstNumberIndex === index)
+      this.firstNumberIndex = undefined
+    else if (this.secondNumberIndex === index)
+      this.secondNumberIndex = undefined
+    else if (this.firstNumberIndex === undefined)
+      this.firstNumberIndex = index
+    else if (this.secondNumberIndex === undefined)
+      this.secondNumberIndex = index
+    else {
+      this.firstNumberIndex = index
+      this.secondNumberIndex = undefined
+    }
   }
 
   public selectOperator(index: number): void {
@@ -39,8 +27,25 @@ export class Selector {
       this.operatorIndex = index
   }
 
-  public clear(): void {
-    this.numberIndices = []
+  public isNumberSelected(index: number): boolean {
+    return this.firstNumberIndex === index || this.secondNumberIndex === index
+  }
+
+  public isOperatorSelected(index: number): boolean {
+    return this.operatorIndex === index
+  }
+
+  public isInProgress(): boolean {
+    return this.firstNumberIndex === undefined || this.secondNumberIndex === undefined || this.operatorIndex === undefined
+  }
+
+  public clear(newFirstNumberIndex: number|undefined = undefined): void {
+    this.firstNumberIndex = newFirstNumberIndex
+    this.secondNumberIndex = undefined
     this.operatorIndex = undefined
+  }
+
+  public getMove(numbers: number[]): Move {
+    return new Move(numbers, this.firstNumberIndex!, this.operatorIndex!, this.secondNumberIndex!)
   }
 }

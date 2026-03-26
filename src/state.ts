@@ -1,16 +1,13 @@
+import { Move } from './move.js'
 import { Game } from './game.js'
 
-interface Change {
-  numbers: number[]
-  calculation: string
-}
-
 export class State {
+  public static readonly UNDO_SYMBOL = '↶'
+  public static readonly HINT_SYMBOL = 'ⓘ'
+
   private readonly game = new Game()
   private currentNumbers: number[] = []
-  private changeHistory: Change[] = []
-  private deadEnd: boolean = false
-  private gameOver: boolean = false
+  private moveHistory: Move[] = []
 
   constructor() {
     this.reset()
@@ -18,81 +15,45 @@ export class State {
 
   public reset(): void {
     this.currentNumbers = this.game.generateNumbers()
-    this.changeHistory = []
-    this.deadEnd = false
-    this.gameOver = false
+    this.moveHistory = []
   }
 
   public getNumbers(): number[] {
     return this.currentNumbers
   }
 
-  public getOperatorSymbols(): string[] {
-    return ['+', '−', '×', '÷']
-  }
-
-  public getUndoSymbols(): string[] {
-    return ['↶']
-  }
-
-  public getHintSymbols(): string[] {
-    return ['ⓘ']
-  }
-
   public isDeadEnd(): boolean {
-    return this.deadEnd
+    return this.moveHistory.length > 0 && this.moveHistory.at(-1)!.isDeadEnd
   }
 
   public isGameOver(): boolean {
-    return this.gameOver
+    return this.moveHistory.length > 0 && this.moveHistory.at(-1)!.isGameOver
   }
 
   public canUndo(): boolean {
-    return this.changeHistory.length > 0
+    return this.moveHistory.length > 0
   }
 
   public undo(): void {
-    const change = this.changeHistory.pop()!
-    this.currentNumbers = change.numbers
-    this.deadEnd = false
+    const move = this.moveHistory.pop()!
+    this.currentNumbers = [...move.numbers]
   }
 
   public applyHint(): number {
-    const move = this.game.getHint(this.currentNumbers)!
-    const firstIndex = this.currentNumbers.indexOf(move.a)
-    const secondIndex = this.currentNumbers.lastIndexOf(move.b)
-    this.performCalculation(firstIndex, move.operatorIndex, secondIndex)
-    return secondIndex
+    const move = this.game.getHint(this.currentNumbers)
+    this.makeMove(move)
+    return move.secondNumberIndex
   }
 
-  public getCalculationHistory(): string[] {
-    return this.changeHistory.map(change => change.calculation)
+  public getCalculations(): string[] {
+    return this.moveHistory.map(move => move.calculation)
   }
 
-  public performCalculation(firstIndex: number, operatorIndex: number, secondIndex: number): boolean {
-    const firstNumber = this.currentNumbers[firstIndex]!
-    const secondNumber = this.currentNumbers[secondIndex]!
-    const moveOrdered = { a: firstNumber, operatorIndex, b: secondNumber}
-    const moveReversed = { a: secondNumber, operatorIndex, b: firstNumber}
-    const resultOrdered = this.game.performCalculation(moveOrdered)
-    const resultReversed = this.game.performCalculation(moveReversed)
-    const result = resultOrdered || resultReversed
-    if (isNaN(result))
+  public makeMove(move: Move): boolean {
+    if (!move.isValid)
       return false
-
-    const operatorSymbol = this.getOperatorSymbols()[operatorIndex]!
-    const calculationOrdered = `${firstNumber} ${operatorSymbol} ${secondNumber} = ${result}`
-    const calculationReversed = `${secondNumber} ${operatorSymbol} ${firstNumber} = ${result}`
-    const calculation = resultOrdered ? calculationOrdered : calculationReversed
-
-    this.changeHistory.push({ numbers: [...this.currentNumbers], calculation })
-    this.currentNumbers[firstIndex] = NaN
-    this.currentNumbers[secondIndex] = result
-
-    const validNumbers = this.currentNumbers.filter(number => !isNaN(number))
-    this.deadEnd = this.game.checkDeadEnd(validNumbers)
-    this.gameOver = this.game.checkGameOver(validNumbers)
-
+    this.moveHistory.push(move)
+    this.currentNumbers = move.allNewNumbers
     return true
   }
 }
