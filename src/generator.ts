@@ -1,145 +1,58 @@
 /*
-# Level 1 — Direct Construction
 
-**Core idea:** Build 24 in one obvious step.
+# **Definitions (used in all levels)**
 
-**Start number characteristics**
+For a given set of 4 numbers:
 
-* Contains a number that is a **factor of 24** (e.g., 3, 4, 6, 8)
-* Often includes **duplicates or 1s**
-* Sum or product is already close to 24
+* **Valid operation**: +, −, ×, ÷ where:
 
-**Allowed solution patterns**
-
-* ((a + b + c) \times d)
-* (a \times b \times c)
-
-**Intermediate traits**
-
-* Only **one intermediate step**
-* All intermediates ≤ 24
-
-**Example**
-
-* 1, 2, 3, 4 → ((1+2+3) × 4)
+  * Subtraction is only allowed when the result is **non-negative** (a − b only when a ≥ b)
+  * Division is only allowed when the result is a **positive integer** (a ÷ b only when b divides a exactly)
+* **Solution path**: a sequence of 3 operations that evaluates to 24
+* **Viable path count**: the number of distinct solution paths, counted by tracking unique intermediate multisets — paths that pass through the same intermediate values are counted once
 
 ---
 
-# Level 2 — Two-Step Linear Build
+# **Level 1 — Direct**
 
-**Core idea:** Create a helpful intermediate (like 6, 8, or 12), then scale to 24.
+**Criterion:** `viable path count ≥ 7`
 
-**Start number characteristics**
-
-* No immediate 24-forming combination
-* Contains **complementary pairs** (e.g., 3 & 8, 4 & 6)
-
-**Allowed solution patterns**
-
-* ((a + b) × (c + d))
-* ((a × b) × (c + d))
-
-**Intermediate traits**
-
-* One intermediate target like **6, 8, or 12**
-* Still no branching decisions
-
-**Example**
-
-* 2, 3, 4, 6 → ((2×3) × (4+6))
+Many different sequences of operations lead to 24. The puzzle has a high branching factor: multiple starting operations are productive, and there are several independent routes to the answer.
 
 ---
 
-# Level 3 — Ordered Assembly
+# **Level 2 — Constructive**
 
-**Core idea:** The order of operations matters; not all combinations work.
+**Criterion:** `4 ≤ viable path count ≤ 6`
 
-**Start number characteristics**
-
-* No obvious factor pairing
-* Numbers are **spread out** (e.g., 2, 5, 7, 8)
-
-**Allowed solution patterns**
-
-* ((a × b + c) × d)
-* ((a + b × c) × d)
-
-**Intermediate traits**
-
-* Requires **specific sequencing**
-* Intermediate values often **not factors of 24** until the final step
-
-**Example**
-
-* 2, 5, 7, 8 → ((5×2 + 7) × 8 ÷ ?) (must avoid invalid paths and choose correct order)
+A moderate number of solution paths exist. The puzzle requires deliberate construction — not every starting operation is productive, but several valid routes remain available.
 
 ---
 
-# Level 4 — Constrained Composition
+# **Level 3 — Constrained**
 
-**Core idea:** Only a **few valid operation sequences** work.
+**Criterion:** `1 ≤ viable path count ≤ 3`
 
-**Start number characteristics**
-
-* No 1s, no duplicates
-* Weak direct synergy with 24 (e.g., primes or awkward combinations)
-
-**Allowed solution patterns**
-
-* Mixed operations across all four numbers
-* Often requires **building toward 12 or 24 indirectly**
-
-**Intermediate traits**
-
-* Several “dead ends” if wrong order is chosen
-* Intermediates may temporarily exceed 24 but remain positive integers
-
-**Example**
-
-* 3, 5, 7, 8 → must carefully combine to avoid unusable totals
+Very few solution paths exist. The puzzle has a narrow search space: most operation sequences are dead ends, and the correct approach requires precise ordering.
 
 ---
 
-# Level 5 — Tight Constraint / Single Path
+# **Level 0 — Unsolvable**
 
-**Core idea:** Essentially **one viable solution path** under the rules.
+**Criterion:** `viable path count = 0`
 
-**Start number characteristics**
-
-* No easy factors of 24
-* Often includes **multiple primes or near-primes** (5, 7)
-* No helpful sums like 6, 8, 12 appear naturally
-
-**Allowed solution patterns**
-
-* Non-obvious grouping like:
-
-  * ((a × b + c) × d)
-  * ((a × (b + c)) × d)
-
-**Intermediate traits**
-
-* Requires:
-
-  * Exact intermediate targets (e.g., must hit 3 or 4 first)
-  * Careful avoidance of overshooting
-* Very low branching tolerance
-
-**Example**
-
-* 3, 5, 7, 7 → only very specific construction yields 24
+No sequence of valid operations produces 24 from these four numbers.
 
 ---
 
-# Summary of Progression
+# **Summary Table**
 
-| Level | Key Feature | Player Challenge    |
-| ----- | ----------- | ------------------- |
-| 1     | Direct      | Recognition         |
-| 2     | Two-step    | Simple planning     |
-| 3     | Ordered     | Sequencing          |
-| 4     | Constrained | Search + pruning    |
-| 5     | Single-path | Precision reasoning |
+| Level | Name        | Viable Paths | Difficulty         |
+| ----- | ----------- | ------------ | ------------------ |
+| 1     | Direct      | ≥ 7          | Easy               |
+| 2     | Constructive| 4–6          | Medium             |
+| 3     | Constrained | 1–3          | Hard               |
+| 0     | Unsolvable  | 0            | —                  |
 
 */
 
@@ -155,12 +68,11 @@ const operations = [
 ]
 
 // Try all expression trees and count solution paths
-function analyzeSolutions(numbers: number[]): { solvable: boolean; solutionCount: number; maxIntermediate: number } {
+function getLevel(numbers: number[]): number {
   let solutionCount = 0
-  let maxIntermediate = 0
   const seenStates = new Set<string>()
 
-  function helper(numbers: number[]) {
+  function traverseTree(numbers: number[]) {
     if (numbers.length === 1) {
       if (numbers[0] === 24)
         solutionCount++
@@ -171,130 +83,68 @@ function analyzeSolutions(numbers: number[]): { solvable: boolean; solutionCount
       for (let j = i + 1; j < numbers.length; j++) {
         const remainingNumbers = numbers.filter((_, index) => index !== i && index !== j)
 
-        for (const op of operations) {
+        for (const operation of operations) {
           // Try operation in both directions
-          const result1 = op(numbers[i]!, numbers[j]!)
-          if (!isNaN(result1)) {
-            maxIntermediate = Math.max(maxIntermediate, result1)
-
-            const newNumbers1 = [...remainingNumbers, result1].sort((a, b) => a - b)
-            const stateKey1 = newNumbers1.join(',')
-
-            if (!seenStates.has(stateKey1)) {
-              seenStates.add(stateKey1)
-              helper(newNumbers1)
-            }
-          }
-
-          const result2 = op(numbers[j]!, numbers[i]!)
-          if (!isNaN(result2)) {
-            maxIntermediate = Math.max(maxIntermediate, result2)
-
-            const newNumbers2 = [...remainingNumbers, result2].sort((a, b) => a - b)
-            const stateKey2 = newNumbers2.join(',')
-
-            if (!seenStates.has(stateKey2)) {
-              seenStates.add(stateKey2)
-              helper(newNumbers2)
-            }
+          const result = operation(numbers[i]!, numbers[j]!) || operation(numbers[j]!, numbers[i]!)
+          if (isNaN(result))
+            continue
+          const newNumbers = [...remainingNumbers, result].sort((a, b) => a - b)
+          const stateKey = newNumbers.join(',')
+          if (!seenStates.has(stateKey)) {
+            if (newNumbers.length > 1)
+              seenStates.add(stateKey)
+            traverseTree(newNumbers)
           }
         }
       }
     }
   }
 
-  helper(numbers)
+  traverseTree(numbers)
 
-  return {
-    solvable: solutionCount > 0,
-    solutionCount,
-    maxIntermediate,
-  }
-}
-
-// Difficulty classification
-function getLevel(numbers: number[]): number {
-  const analysis = analyzeSolutions(numbers)
-
-  if (!analysis.solvable)
+  // Level 0 — Unsolvable
+  if (solutionCount <= 0)
     return 0
 
-  const unique = new Set(numbers).size
-  const hasOne = numbers.includes(1)
-  const hasFactor = numbers.some(n => 24 % n === 0 && n > 1)
-  const maxNum = Math.max(...numbers)
-  const minNum = Math.min(...numbers)
-
-  // Level 1: Direct construction
-  // Easy patterns: contains 1, many duplicates, or simple factor combinations
-  if (hasOne && unique <= 3)
-    return 1
-
-  if (unique <= 2)
-    return 1
-
-  if (hasFactor && unique === 3 && hasOne)
-    return 1
-
-  // Level 2: Two-step linear
-  // Moderate difficulty: has factors of 24 or contains 1
-  if (hasOne)
-    return 2
-
-  if (hasFactor && unique === 3)
-    return 2
-
-  if (unique === 3)
-    return 2
-
-  // Level 5: Tight constraint / single path (check first!)
-  // All unique, no easy factors, includes primes or difficult combinations
-  if (unique === 4 && !hasFactor)
-    return 5
-
-  // Level 3: Ordered assembly
-  // Numbers spread out, no 1s, all unique with small factors
-  if (unique === 4 && hasFactor && maxNum <= 6)
+  // Level 3 — Constrained: low number of viable solution paths
+  if (solutionCount <= 2)
     return 3
 
-  if (unique === 4 && minNum >= 2 && maxNum <= 5)
-    return 3
+  // Level 2 — Constructive: moderate number of viable solution paths
+  if (solutionCount <= 4)
+    return 2
 
-  // Level 4: Constrained composition
-  // No 1s, all unique, includes larger numbers with factors
-  if (unique === 4 && hasFactor)
-    return 4
-
-  // Default fallback
-  return 3
+  // Level 1 — Direct: high number of viable solution paths
+  return 1
 }
 
 // Generate combinations (with repetition, sorted to avoid duplicates)
-function generateCombinations(): number[][] {
-  const results: number[][] = []
+function getCombinations(): number[][] {
+  const combinations: number[][] = []
   for (let a = 1; a <= 9; a++)
     for (let b = a; b <= 9; b++)
       for (let c = b; c <= 9; c++)
         for (let d = c; d <= 9; d++)
-          results.push([a, b, c, d])
-  return results
+          combinations.push([a, b, c, d])
+  return combinations
 }
 
 // Main
 function main() {
-  const combinations = generateCombinations()
-  const total = Array.from({ length: 6 }, () => 0)
+  const combinations = getCombinations()
 
   const json = combinations.map(numbers => {
     const level = getLevel(numbers)
-    total[level]!++
     return { numbers, level }
   })
 
-  console.log(total)
-  fs.writeFileSync('results.json', JSON.stringify(json, null, 2))
+  const total = json.reduce((total, { level }) => {
+    total[level]!++
+    return total
+  }, [0, 0, 0, 0])
 
-  console.log(`Generated ${json.length} combinations.`)
+  console.log(total, json.length)
+  fs.writeFileSync('results.json', JSON.stringify(json, null, 2))
 }
 
 main()
