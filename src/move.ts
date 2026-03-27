@@ -5,12 +5,12 @@ export class Move {
   public readonly firstNumberIndex: number
   public readonly operatorIndex: number
   public readonly secondNumberIndex: number
-  private readonly result: number
+  public readonly result: number
   public readonly isValid: boolean
   public readonly allNewNumbers: number[]
   public readonly validNewNumbers: number[]
   public readonly isDeadEnd: boolean
-  public readonly isGameOver: boolean
+  public readonly isSolved: boolean
   public readonly calculation: string
 
   constructor(numbers: number[], firstNumberIndex: number, operatorIndex: number, secondNumberIndex: number) {
@@ -29,7 +29,7 @@ export class Move {
     this.allNewNumbers = this.numbers.with(this.firstNumberIndex, NaN).with(this.secondNumberIndex, this.result)
     this.validNewNumbers = this.allNewNumbers.filter(number => !isNaN(number))
     this.isDeadEnd = this.validNewNumbers.length === 1 && this.validNewNumbers[0] !== 24
-    this.isGameOver = this.validNewNumbers.length === 1 && this.validNewNumbers[0] === 24
+    this.isSolved = this.validNewNumbers.length === 1 && this.validNewNumbers[0] === 24
     const operatorSymbol = Move.OPERATOR_SYMBOLS[this.operatorIndex]!
     this.calculation = `${firstNumber} ${operatorSymbol} ${secondNumber} = ${this.result}`
   }

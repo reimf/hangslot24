@@ -24,19 +24,23 @@ export class State {
     return this.currentNumbers
   }
 
-  public isDeadEnd(): boolean {
-    return this.moveHistory.at(-1)?.isDeadEnd ?? false
-  }
-
-  public isGameOver(): boolean {
-    return this.moveHistory.at(-1)?.isGameOver ?? false
-  }
-
-  public canUndo(): boolean {
+  public isStarted(): boolean {
     return this.moveHistory.length > 0
   }
 
-  public undo(): void {
+  private isDeadEnd(): boolean {
+    return this.moveHistory.at(-1)?.isDeadEnd ?? false
+  }
+
+  public isSolved(): boolean {
+    return this.moveHistory.at(-1)?.isSolved ?? false
+  }
+
+  public isFinished(): boolean {
+    return this.isSolved() || this.isDeadEnd()
+  }
+
+  public undoMove(): void {
     const move = this.moveHistory.pop()!
     this.currentNumbers = [...move.numbers]
     this.selector.clear()

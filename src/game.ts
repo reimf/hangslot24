@@ -18,7 +18,7 @@ export class Game {
       for (let secondNumberIndex = firstNumberIndex + 1; secondNumberIndex < numbers.length; secondNumberIndex++) {
         for (let operatorIndex = 0; operatorIndex < Move.OPERATOR_SYMBOLS.length; operatorIndex++) {
           const move = new Move(numbers, firstNumberIndex, operatorIndex, secondNumberIndex)
-          if (move.isGameOver || (move.isValid && this.hasSolution(move.validNewNumbers)))
+          if (move.isSolved || (move.isValid && this.hasSolution(move.validNewNumbers)))
             return true
         }
       }

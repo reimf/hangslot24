@@ -16,13 +16,13 @@ export class Padlock {
 
   private wireButtons(): void {
     this.numberButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickNumberButton(index))
+      button.addClickListener(() => this.onClickNumberButton(index))
     )
     this.operatorButtons.forEach((button, index) =>
-      button.addEventListener('click', () => this.onClickOperatorButton(index))
+      button.addClickListener(() => this.onClickOperatorButton(index))
     )
-    this.undoButton.addEventListener('click', () => this.onClickUndoButton())
-    this.hintButton.addEventListener('click', () => this.onClickHintButton())
+    this.undoButton.addClickListener(() => this.onClickUndoButton())
+    this.hintButton.addClickListener(() => this.onClickHintButton())
   }
 
   private onClickNumberButton(index: number): void {
@@ -38,7 +38,7 @@ export class Padlock {
   }
 
   private onClickUndoButton(): void {
-    this.state.undo()
+    this.state.undoMove()
     this.updateButtons()
   }
 
@@ -53,38 +53,39 @@ export class Padlock {
   }
 
   private updateButtons(): void {
-    this.updateNumbers(this.state.getNumbers())
-    this.updateOperators(State.OPERATOR_SYMBOLS)
+    this.updateNumbers()
+    this.updateOperators()
     this.updateUndo()
     this.updateHint()
     this.updateCalculations()
   }
 
-  private updateNumbers(numbers: number[]): void {
+  private updateNumbers(): void {
+    const numbers = this.state.getNumbers()
     this.numberButtons.forEach((button, index) => {
       const value = numbers[index]!
       button.setText(isNaN(value) ? '' : String(value))
-      button.disable(this.state.isDeadEnd() || this.state.isGameOver() || isNaN(value))
+      button.disable(isNaN(value) || this.state.isFinished())
       button.select(this.state.isNumberSelected(index))
     })
   }
 
-  private updateOperators(operatorSymbols: string[]): void {
+  private updateOperators(): void {
     this.operatorButtons.forEach((button, index) => {
-      button.setText(operatorSymbols[index]!)
-      button.disable(this.state.isDeadEnd() || this.state.isGameOver())
+      button.setText(State.OPERATOR_SYMBOLS[index]!)
+      button.disable(this.state.isFinished())
       button.select(this.state.isOperatorSelected(index))
     })
   }
 
   private updateUndo(): void {
     this.undoButton.setText('↶')
-    this.undoButton.disable(this.state.isGameOver() || !this.state.canUndo())
+    this.undoButton.disable(!this.state.isStarted())
   }
 
   private updateHint(): void {
     this.hintButton.setText('ⓘ')
-    this.hintButton.disable(this.state.canUndo())
+    this.hintButton.disable(this.state.isStarted() && !this.state.isFinished())
   }
 
   private updateCalculations(): void {
@@ -96,7 +97,7 @@ export class Padlock {
   private tryCalculate(): void {
     this.state.makeSelectedMove()
     this.updateButtons()
-    if (this.state.isGameOver())
+    if (this.state.isSolved())
       this.openAndClosePadlock()
   }
 
