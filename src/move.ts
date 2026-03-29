@@ -1,4 +1,4 @@
-import { PartialPermutation } from './game.js'
+export type PartialPermutation = [] | [number] | [number, number] | [number, number, number] | [number, number, number, number]
 
 export class Move {
   public static readonly OPERATOR_SYMBOLS = ['+', '−', '×', '÷']

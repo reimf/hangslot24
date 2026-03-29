@@ -1,5 +1,7 @@
-import { Move } from './move.js'
-import { Game, Level, FullPermutation, PartialPermutation } from './game.js'
+import { Move, PartialPermutation } from './move.js'
+import { FullPermutation } from './combination.js'
+import { Game } from './game.js'
+import { Level } from './level.js'
 import { Selector } from './selector.js'
 
 export class State {
@@ -15,7 +17,7 @@ export class State {
   }
 
   public reset(level: Level): void {
-    this.currentNumbers = this.game.getPermutation(level)
+    this.currentNumbers = this.game.getPermutation(level, level)
     this.moveHistory = []
     this.selector.clear()
   }

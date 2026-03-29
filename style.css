@@ -47,7 +47,7 @@ body {
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 
-  #rating {
+  #rating-top {
     dominant-baseline: text-after-edge;
     fill: var(--shackle-text);
     font-size: 20px;
@@ -57,7 +57,7 @@ body {
     user-select: none;
   }
 
-  #level {
+  #rating-bottom {
     dominant-baseline: text-before-edge;
     fill: var(--shackle-text);
     font-size: 20px;
@@ -80,7 +80,7 @@ body {
       stroke: var(--level-easy);
     }
 
-    #rating, #level {
+    #rating-top, #rating-bottom {
       font-size: 14px;
     }
   }
@@ -92,7 +92,7 @@ body {
       stroke: var(--level-medium);
     }
 
-    #rating, #level {
+    #rating-top, #rating-bottom {
       font-size: 18px;
     }
   }
@@ -104,7 +104,7 @@ body {
       stroke: var(--level-hard);
     }
 
-    #rating, #level {
+    #rating-top, #rating-bottom {
       font-size: 22px;
     }
   }
