@@ -1,17 +1,22 @@
 :root {
-  --page-background: #1a252f;
-  --padlock-body: #2c3e50;
-  --padlock-shackle: #b0bec5;
+  --page-background:            oklch(40% 0.02445 246.381);
+  --padlock-body:               oklch(35% 0.03914 249.005);
+  --padlock-shackle:            oklch(80% 0.01847 229.263);
 
-  --button-background: #eaedf0;
-  --button-text: #1a252f;
-  --disabled-button-background: #364e65;
-  --disabled-button-text: #1a252f;
-  --selected-button-background: #e67e22;
-  --selected-button-text: #ffffff;
+  --level-easy:                 #009900;
+  --level-medium:               #CC6600;
+  --level-hard:                 #CC0000;
 
-  --calculation-text: #e67e22;
-  --brand-text: #00000044;
+  --button-background:          oklch(95% 0.005 250);
+  --button-text:                oklch(25% 0.025 249);
+  --disabled-button-background: oklch(from var(--button-background) l c h / 0.1);
+  --disabled-button-text:       oklch(25% 0.025 249);
+  --selected-button-background: oklch(from yellow l 1 h);
+  --selected-button-text:       var(--button-text);
+
+  --calculation-text:           oklch(70% 0.161 55);
+  --brand-text:                 oklch(0% 0 0 / 0.267);
+  --shackle-text:               var(--button-background);
 }
 
 * {
@@ -36,10 +41,31 @@ body {
 }
 
 #shackle {
-  will-change: transform;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: 50px 0px;
+  stroke-width: 40px;
   transform: translateY(0px) scaleX(1);
+  transform-origin: 50px 0px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+
+  #rating {
+    dominant-baseline: text-after-edge;
+    fill: var(--shackle-text);
+    font-size: 20px;
+    font-weight: 700;
+    pointer-events: none;
+    text-anchor: middle;
+    user-select: none;
+  }
+
+  #level {
+    dominant-baseline: text-before-edge;
+    fill: var(--shackle-text);
+    font-size: 20px;
+    font-weight: 700;
+    pointer-events: none;
+    text-anchor: middle;
+    user-select: none;
+  }
 
   path {
     stroke: var(--padlock-shackle);
@@ -47,16 +73,52 @@ body {
     vector-effect: non-scaling-stroke;
   }
 
-  &.up {
+  &.level-easy {
+    stroke-width: 40px;
+
+    path {
+      stroke: var(--level-easy);
+    }
+
+    #rating, #level {
+      font-size: 14px;
+    }
+  }
+
+  &.level-medium {
+    stroke-width: 50px;
+
+    path {
+      stroke: var(--level-medium);
+    }
+
+    #rating, #level {
+      font-size: 18px;
+    }
+  }
+
+  &.level-hard {
+    stroke-width: 60px;
+
+    path {
+      stroke: var(--level-hard);
+    }
+
+    #rating, #level {
+      font-size: 22px;
+    }
+  }
+
+  &.animation-up {
     transform: translateY(-100px) scaleX(1);
 
-    &.left {
+    &.animation-left {
       transform: translateY(-100px) scaleX(-1);
 
-      &.right {
+      &.animation-right {
         transform: translateY(-100px) scaleX(1);
 
-        &.down {
+        &.animation-down {
           transform: translateY(0px) scaleX(1);
         }
       }

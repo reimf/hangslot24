@@ -1,4 +1,5 @@
 import { Button } from './button.js'
+import { Level } from './level.js'
 import { State } from './state.js'
 
 export class Padlock {
@@ -7,7 +8,9 @@ export class Padlock {
   private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
   private readonly hintButton = new Button(document.querySelector<SVGElement>('.hint-button')!)
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
-  private readonly state = new State()
+  private level = Level.EASY
+  private readonly state = new State(this.level)
+  private startsInThisLevel = 0
 
   constructor() {
     this.wireButtons()
@@ -27,37 +30,44 @@ export class Padlock {
 
   private onClickNumberButton(index: number): void {
     this.state.selectNumber(index)
-    this.updateButtons()
-    this.tryCalculate()
+    this.state.makeSelectedMove()
+    this.updateUI()
   }
 
   private onClickOperatorButton(index: number): void {
     this.state.selectOperator(index)
-    this.updateButtons()
-    this.tryCalculate()
+    this.state.makeSelectedMove()
+    this.updateUI()
   }
 
   private onClickUndoButton(): void {
     this.state.undoMove()
-    this.updateButtons()
+    this.updateUI()
   }
 
   private onClickHintButton(): void {
     this.state.applyHint()
-    this.updateButtons()
+    this.updateUI()
   }
 
   private start(): void {
-    this.state.reset()
-    this.updateButtons()
+    if (this.startsInThisLevel >= 3) {
+      this.level = this.level.nextLevel()
+      this.startsInThisLevel++
+    }
+    this.state.reset(this.level)
+    this.startsInThisLevel++
+    this.updateUI()
   }
 
-  private updateButtons(): void {
+  private updateUI(): void {
     this.updateNumbers()
     this.updateOperators()
     this.updateUndo()
     this.updateHint()
     this.updateCalculations()
+    this.updateLevel()
+    this.updateShackle()
   }
 
   private updateNumbers(): void {
@@ -85,7 +95,7 @@ export class Padlock {
 
   private updateHint(): void {
     this.hintButton.setText('ⓘ')
-    this.hintButton.disable(this.state.isStarted() && !this.state.isFinished())
+    this.hintButton.disable(this.state.isFinished())
   }
 
   private updateCalculations(): void {
@@ -94,20 +104,25 @@ export class Padlock {
     })
   }
 
-  private tryCalculate(): void {
-    this.state.makeSelectedMove()
-    this.updateButtons()
-    if (this.state.isSolved())
-      this.openAndClosePadlock()
+  private updateLevel(): void {
+    const shackleElement = document.querySelector<SVGGElement>('#shackle')!
+    shackleElement.classList.remove(...Array.from(shackleElement.classList))
+    shackleElement.classList.add(this.level.cssClass)
+    const ratingElement = document.querySelector<SVGTextElement>('#rating')!
+    ratingElement.textContent = this.level.rating
+    const levelElement = document.querySelector<SVGTextElement>('#level')!
+    levelElement.textContent = this.level.text
   }
 
-  private openAndClosePadlock(): void {
+  private updateShackle(): void {
+    if (!this.state.isSolved())
+      return
     const shackle = document.querySelector('#shackle') as SVGGElement
-    setTimeout(() => shackle.classList.add('up'), 0)
-    setTimeout(() => shackle.classList.add('left'), 1000)
-    setTimeout(() => shackle.classList.add('right'), 2000)
-    setTimeout(() => shackle.classList.add('down'), 3000)
-    setTimeout(() => shackle.classList.remove(...Array.from(shackle.classList)), 4000)
+    setTimeout(() => shackle.classList.add('animation-up'), 0)
+    setTimeout(() => shackle.classList.add('animation-left'), 1000)
+    setTimeout(() => shackle.classList.add('animation-right'), 2000)
+    setTimeout(() => shackle.classList.add('animation-down'), 3000)
+    setTimeout(() => shackle.classList.remove('animation-up', 'animation-left', 'animation-right', 'animation-down'), 4000)
     setTimeout(() => this.start(), 4500)
   }
 }

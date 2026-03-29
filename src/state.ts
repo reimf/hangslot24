@@ -1,5 +1,5 @@
 import { Move } from './move.js'
-import { Game } from './game.js'
+import { Game, Level, FullPermutation, PartialPermutation } from './game.js'
 import { Selector } from './selector.js'
 
 export class State {
@@ -7,20 +7,20 @@ export class State {
 
   private readonly game = new Game()
   private readonly selector = new Selector()
-  private currentNumbers: number[] = []
+  private currentNumbers: FullPermutation = [NaN, NaN, NaN, NaN]
   private moveHistory: Move[] = []
 
-  constructor() {
-    this.reset()
+  constructor(level: Level) {
+    this.reset(level)
   }
 
-  public reset(): void {
-    this.currentNumbers = this.game.generateNumbers()
+  public reset(level: Level): void {
+    this.currentNumbers = this.game.getPermutation(level)
     this.moveHistory = []
     this.selector.clear()
   }
 
-  public getNumbers(): number[] {
+  public getNumbers(): PartialPermutation {
     return this.currentNumbers
   }
 
@@ -42,12 +42,13 @@ export class State {
 
   public undoMove(): void {
     const move = this.moveHistory.pop()!
-    this.currentNumbers = [...move.numbers]
+    this.currentNumbers = [...(move.numbers as FullPermutation)]
     this.selector.clear()
   }
 
   public applyHint(): void {
     const move = this.game.getHint(this.currentNumbers)!
+    console.log(move)
     this.makeMove(move)
   }
 
@@ -75,15 +76,21 @@ export class State {
     if (this.selector.isInProgress())
       return
     const move = new Move(this.currentNumbers, this.selector.firstNumberIndex!, this.selector.operatorIndex!, this.selector.secondNumberIndex!)
-    if (move.isValid)
+    if (move.isValid) {
       this.makeMove(move)
-    else
-      this.selector.clear()
+      return
+    }
+    const reversedMove = new Move(this.currentNumbers, this.selector.secondNumberIndex!, this.selector.operatorIndex!, this.selector.firstNumberIndex!)
+    if (reversedMove.isValid) {
+      this.makeMove(reversedMove)
+      return
+    }
+    this.selector.clear()
   }
 
   private makeMove(move: Move): void {
     this.moveHistory.push(move)
-    this.currentNumbers = move.allNewNumbers
+    this.currentNumbers = move.allNewNumbers as FullPermutation
     this.selector.clear(move.secondNumberIndex)
   }
 }
