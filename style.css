@@ -3,9 +3,9 @@
   --padlock-body:               oklch(35% 0.03914 249.005);
   --padlock-shackle:            oklch(80% 0.01847 229.263);
 
-  --level-easy:                 #009900;
+  --level-easy:                 #006600;
   --level-medium:               #CC6600;
-  --level-hard:                 #CC0000;
+  --level-hard:                 #990000;
 
   --button-background:          oklch(95% 0.005 250);
   --button-text:                oklch(25% 0.025 249);
@@ -41,7 +41,7 @@ body {
 }
 
 #shackle {
-  stroke-width: 40px;
+  stroke-width: 60px;
   transform: translateY(0px) scaleX(1);
   transform-origin: 50px 0px;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -50,7 +50,7 @@ body {
   #rating-top {
     dominant-baseline: text-after-edge;
     fill: var(--shackle-text);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     pointer-events: none;
     text-anchor: middle;
@@ -60,7 +60,7 @@ body {
   #rating-bottom {
     dominant-baseline: text-before-edge;
     fill: var(--shackle-text);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     pointer-events: none;
     text-anchor: middle;
@@ -74,38 +74,20 @@ body {
   }
 
   &.level-easy {
-    stroke-width: 40px;
-
-    path {
-      stroke: var(--level-easy);
-    }
-
     #rating-top, #rating-bottom {
-      font-size: 14px;
+      fill: var(--level-easy);
     }
   }
 
   &.level-medium {
-    stroke-width: 50px;
-
-    path {
-      stroke: var(--level-medium);
-    }
-
     #rating-top, #rating-bottom {
-      font-size: 18px;
+      fill: var(--level-medium);
     }
   }
 
   &.level-hard {
-    stroke-width: 60px;
-
-    path {
-      stroke: var(--level-hard);
-    }
-
     #rating-top, #rating-bottom {
-      font-size: 22px;
+      fill: var(--level-hard);
     }
   }
 

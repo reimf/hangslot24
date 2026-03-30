@@ -13,11 +13,11 @@ export class State {
   private moveHistory: Move[] = []
 
   constructor(level: Level) {
-    this.reset(level)
+    this.reset(level, level)
   }
 
-  public reset(level: Level): void {
-    this.currentNumbers = this.game.getPermutation(level, level)
+  public reset(minLevel: Level, maxLevel: Level): void {
+    this.currentNumbers = this.game.getPermutation(minLevel, maxLevel)
     this.moveHistory = []
     this.selector.clear()
   }

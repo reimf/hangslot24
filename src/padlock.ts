@@ -14,7 +14,13 @@ export class Padlock {
 
   private level = Level.EASY
   private readonly state = new State(this.level)
-  private startsInThisLevel = 0
+  private readonly phases = [
+    { minLevel: Level.EASY, maxLevel: Level.EASY, amount: 3 },
+    { minLevel: Level.MEDIUM, maxLevel: Level.MEDIUM, amount: 3 },
+    { minLevel: Level.HARD, maxLevel: Level.HARD, amount: 3 },
+    { minLevel: Level.EASY, maxLevel: Level.HARD, amount: Infinity },
+  ]
+  private phaseIndex = 0
 
   constructor() {
     this.wireButtons()
@@ -55,12 +61,11 @@ export class Padlock {
   }
 
   private start(): void {
-    if (this.startsInThisLevel >= 3) {
-      this.level = this.level.nextLevel()
-      this.startsInThisLevel++
-    }
-    this.state.reset(this.level)
-    this.startsInThisLevel++
+    if (this.phases[this.phaseIndex]!.amount === 0)
+      this.phaseIndex++
+    const phase = this.phases[this.phaseIndex]!
+    this.state.reset(phase.minLevel, phase.maxLevel)
+    phase.amount--
     this.updateUI()
   }
 
