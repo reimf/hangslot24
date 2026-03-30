@@ -11,10 +11,8 @@ export class Game {
     return Math.floor(Math.random() * length)
   }
 
-  public getPermutation(minLevel: Level, maxLevel: Level): FullPermutation {
-    const combinations = Level.combinationsInRange(minLevel, maxLevel)
-    const randomIndex = this.randomInt(combinations.length)
-    const combination = combinations[randomIndex]!
+  public getRandomPermutation(level: Level): FullPermutation {
+    const combination = level.getRandomCombination()
     return combination.getRandomPermutation()
   }
 
@@ -35,7 +33,7 @@ export class Game {
     return false
   }
 
-  public getHint(numbers: PartialPermutation): Move {
+  public getHint(numbers: PartialPermutation): Move | undefined {
     const hints: Move[] = []
     for (let firstNumberIndex = 0; firstNumberIndex < numbers.length; firstNumberIndex++) {
       for (let secondNumberIndex = 0; secondNumberIndex < numbers.length; secondNumberIndex++) {
@@ -48,6 +46,6 @@ export class Game {
         }
       }
     }
-    return hints[this.randomInt(hints.length)]!
+    return hints[this.randomInt(hints.length)]
   }
 }

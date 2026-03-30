@@ -1,9 +1,9 @@
 import { Combination } from './combination.js'
 
 export class Level {
-  public static readonly EASY   = new Level(65, Infinity, '★☆☆', 'easy',   'level-easy'  )
-  public static readonly MEDIUM = new Level(25, 64,       '★★☆', 'medium', 'level-medium')
-  public static readonly HARD   = new Level( 0, 24,       '★★★', 'hard',   'level-hard'  )
+  public static readonly EASY = new Level(65, Infinity, '★☆☆', 'easy', 'level-easy')
+  public static readonly MEDIUM = new Level(25, 64, '★★☆', 'medium', 'level-medium')
+  public static readonly HARD = new Level(1, 24, '★★★', 'hard', 'level-hard')
 
   private static readonly ALL: Level[] = [Level.EASY, Level.MEDIUM, Level.HARD]
 
@@ -26,18 +26,17 @@ export class Level {
     this.combinations.push(combination)
   }
 
-  public static combinationsInRange(minLevel: Level, maxLevel: Level): Combination[] {
-    return Level.ALL
-      .filter(level => Level.isInRange(level, minLevel, maxLevel))
-      .flatMap(level => level.combinations)
+  public getRandomCombination(): Combination {
+    const randomIndex = Math.floor(Math.random() * this.combinations.length)
+    return this.combinations[randomIndex]!
   }
 
   public matchesCount(count: number): boolean {
     return count >= this.minCount && count <= this.maxCount
   }
 
-  public static forCount(count: number): Level {
-    return Level.ALL.find(level => level.matchesCount(count))!
+  public static forCount(count: number): Level|undefined {
+    return Level.ALL.find(level => level.matchesCount(count))
   }
 
   public static isInRange(level: Level, minLevel: Level, maxLevel: Level): boolean {

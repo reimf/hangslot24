@@ -10,7 +10,10 @@ export class Combination {
   constructor(a: number, b: number, c: number, d: number) {
     this.numbers = [a, b, c, d]
     this.solutionCount = this.getCount()
-    Level.forCount(this.solutionCount).addCombination(this)
+    const level = Level.forCount(this.solutionCount)
+    if (level === undefined)
+      return
+    level.addCombination(this)
   }
 
   public static generateAll(): void {

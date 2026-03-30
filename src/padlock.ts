@@ -15,10 +15,10 @@ export class Padlock {
   private level = Level.EASY
   private readonly state = new State(this.level)
   private readonly phases = [
-    { minLevel: Level.EASY, maxLevel: Level.EASY, amount: 3 },
-    { minLevel: Level.MEDIUM, maxLevel: Level.MEDIUM, amount: 3 },
-    { minLevel: Level.HARD, maxLevel: Level.HARD, amount: 3 },
-    { minLevel: Level.EASY, maxLevel: Level.HARD, amount: Infinity },
+    { levels: [Level.EASY], amount: 3 },
+    { levels: [Level.MEDIUM], amount: 3 },
+    { levels: [Level.HARD], amount: 3 },
+    { levels: [Level.EASY, Level.MEDIUM, Level.HARD], amount: Infinity },
   ]
   private phaseIndex = 0
 
@@ -64,7 +64,9 @@ export class Padlock {
     if (this.phases[this.phaseIndex]!.amount === 0)
       this.phaseIndex++
     const phase = this.phases[this.phaseIndex]!
-    this.state.reset(phase.minLevel, phase.maxLevel)
+    const levelIndex = Math.floor(Math.random() * phase.levels.length)
+    this.level = phase.levels[levelIndex]!
+    this.state.reset(this.level)
     phase.amount--
     this.updateUI()
   }
@@ -107,7 +109,7 @@ export class Padlock {
 
   private updateHint(): void {
     this.hintButton.setText('ⓘ')
-    this.hintButton.disable(this.state.isFinished())
+    this.hintButton.disable(this.state.isHintDisabled())
   }
 
   private updateCalculations(): void {

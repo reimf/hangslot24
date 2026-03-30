@@ -11,15 +11,17 @@ export class State {
   private readonly selector = new Selector()
   private currentNumbers: FullPermutation = [NaN, NaN, NaN, NaN]
   private moveHistory: Move[] = []
+  private hasHintFailed = false
 
   constructor(level: Level) {
-    this.reset(level, level)
+    this.reset(level)
   }
 
-  public reset(minLevel: Level, maxLevel: Level): void {
-    this.currentNumbers = this.game.getPermutation(minLevel, maxLevel)
+  public reset(level: Level): void {
+    this.currentNumbers = this.game.getRandomPermutation(level)
     this.moveHistory = []
     this.selector.clear()
+    this.hasHintFailed = false
   }
 
   public getNumbers(): PartialPermutation {
@@ -31,31 +33,39 @@ export class State {
   }
 
   private isDeadEnd(): boolean {
-    return this.moveHistory.at(-1)?.isDeadEnd ?? false
+    return this.moveHistory.length > 0 && this.moveHistory.at(-1)!.isDeadEnd
   }
 
   public isSolved(): boolean {
-    return this.moveHistory.at(-1)?.isSolved ?? false
+    return this.moveHistory.length > 0 && this.moveHistory.at(-1)!.isSolved
   }
 
   public isFinished(): boolean {
     return this.isSolved() || this.isDeadEnd()
   }
 
+  public isHintDisabled(): boolean {
+    return this.isFinished() || this.hasHintFailed
+  }
+
   public undoMove(): void {
     const move = this.moveHistory.pop()!
     this.currentNumbers = [...(move.numbers as FullPermutation)]
     this.selector.clear()
+    this.hasHintFailed = false
   }
 
   public applyHint(): void {
-    const move = this.game.getHint(this.currentNumbers)!
-    console.log(move)
+    const move = this.game.getHint(this.currentNumbers)
+    if (move === undefined) {
+      this.hasHintFailed = true
+      return
+    }
     this.makeMove(move)
   }
 
   public getCalculation(step: number): string {
-    return this.moveHistory.at(step)?.calculation ?? ''
+    return this.moveHistory.length > step ? this.moveHistory.at(step)!.calculation : ''
   }
 
   public selectNumber(index: number): void {
@@ -94,5 +104,6 @@ export class State {
     this.moveHistory.push(move)
     this.currentNumbers = move.allNewNumbers as FullPermutation
     this.selector.clear(move.secondNumberIndex)
+    this.hasHintFailed = false
   }
 }
