@@ -1,5 +1,5 @@
 import { Button } from './button.js'
-import { Level } from './level.js'
+import { Phase } from './phase.js'
 import { State } from './state.js'
 
 export class Padlock {
@@ -12,15 +12,9 @@ export class Padlock {
   private readonly ratingTop = document.querySelector<SVGTextElement>('#rating-top')!
   private readonly ratingBottom = document.querySelector<SVGTextElement>('#rating-bottom')!
 
-  private level = Level.EASY
+  private phase = Phase.first()
+  private level = this.phase.getRandomLevel()
   private readonly state = new State(this.level)
-  private readonly phases = [
-    { levels: [Level.EASY], amount: 3 },
-    { levels: [Level.MEDIUM], amount: 3 },
-    { levels: [Level.HARD], amount: 3 },
-    { levels: [Level.EASY, Level.MEDIUM, Level.HARD], amount: Infinity },
-  ]
-  private phaseIndex = 0
 
   constructor() {
     this.wireButtons()
@@ -61,13 +55,10 @@ export class Padlock {
   }
 
   private start(): void {
-    if (this.phases[this.phaseIndex]!.amount === 0)
-      this.phaseIndex++
-    const phase = this.phases[this.phaseIndex]!
-    const levelIndex = Math.floor(Math.random() * phase.levels.length)
-    this.level = phase.levels[levelIndex]!
+    if ((this.phase.isCompleted()))
+      this.phase = this.phase.next()
+    this.level = this.phase.getRandomLevel()
     this.state.reset(this.level)
-    phase.amount--
     this.updateUI()
   }
 

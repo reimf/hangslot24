@@ -87,12 +87,15 @@ export class State {
   public makeSelectedMove(): void {
     if (this.selector.isInProgress())
       return
-    const move = new Move(this.currentNumbers, this.selector.firstNumberIndex!, this.selector.operatorIndex!, this.selector.secondNumberIndex!)
+    const selection = this.selector.getSelection()
+    const move = new Move(this.currentNumbers, ...selection)
     if (move.isValid) {
       this.makeMove(move)
       return
     }
-    const reversedMove = new Move(this.currentNumbers, this.selector.secondNumberIndex!, this.selector.operatorIndex!, this.selector.firstNumberIndex!)
+    const reversedSelection = [...selection] as typeof selection
+    reversedSelection.reverse()
+    const reversedMove = new Move(this.currentNumbers, ...reversedSelection)
     if (reversedMove.isValid) {
       this.makeMove(reversedMove)
       return

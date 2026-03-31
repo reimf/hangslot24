@@ -22,8 +22,13 @@ export class Level {
     this.cssClass = cssClass
   }
 
-  public addCombination(combination: Combination): void {
-    this.combinations.push(combination)
+  public static addCombination(combination: Combination): void {
+    Level.ALL.forEach(level => level.addCombination(combination))
+  }
+
+  private addCombination(combination: Combination): void {
+    if (combination.solutionCount >= this.minCount && combination.solutionCount <= this.maxCount)
+      this.combinations.push(combination)
   }
 
   public getRandomCombination(): Combination {
@@ -31,23 +36,12 @@ export class Level {
     return this.combinations[randomIndex]!
   }
 
-  public matchesCount(count: number): boolean {
-    return count >= this.minCount && count <= this.maxCount
+  public static first(): Level {
+    return Level.ALL[0]!
   }
 
-  public static forCount(count: number): Level|undefined {
-    return Level.ALL.find(level => level.matchesCount(count))
-  }
-
-  public static isInRange(level: Level, minLevel: Level, maxLevel: Level): boolean {
-    const index = Level.ALL.indexOf(level)
-    const minIndex = Level.ALL.indexOf(minLevel)
-    const maxIndex = Level.ALL.indexOf(maxLevel)
-    return index >= minIndex && index <= maxIndex
-  }
-
-  public nextLevel(): Level {
+  public next(): Level {
     const index = Level.ALL.indexOf(this)
-    return index + 1 < Level.ALL.length ? Level.ALL[index + 1]! : this
+    return Level.ALL[index + 1] ?? this
   }
 }

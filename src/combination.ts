@@ -1,5 +1,4 @@
 import { Move, PartialPermutation } from './move.js'
-import { Level } from './level.js'
 
 export type FullPermutation = [number, number, number, number]
 
@@ -10,18 +9,14 @@ export class Combination {
   constructor(a: number, b: number, c: number, d: number) {
     this.numbers = [a, b, c, d]
     this.solutionCount = this.getCount()
-    const level = Level.forCount(this.solutionCount)
-    if (level === undefined)
-      return
-    level.addCombination(this)
   }
 
-  public static generateAll(): void {
+  public static *generateAll(): Generator<Combination> {
     for (let a = 1; a <= 9; a++)
       for (let b = a; b <= 9; b++)
         for (let c = b; c <= 9; c++)
           for (let d = c; d <= 9; d++)
-            new Combination(a, b, c, d)
+            yield new Combination(a, b, c, d)
   }
 
   public getRandomPermutation(): FullPermutation {

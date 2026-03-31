@@ -11,8 +11,8 @@
   --button-text:                oklch(25% 0.025 249);
   --disabled-button-background: oklch(from var(--button-background) l c h / 0.1);
   --disabled-button-text:       oklch(25% 0.025 249);
-  --selected-button-background: oklch(from yellow l 1 h);
-  --selected-button-text:       var(--button-text);
+  --selected-button-background: oklch(70% 0.161 55);
+  --selected-button-text:       oklch(100% 0 0);
 
   --calculation-text:           oklch(70% 0.161 55);
   --brand-text:                 oklch(0% 0 0 / 0.267);

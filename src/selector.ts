@@ -1,7 +1,11 @@
 export class Selector {
-  public firstNumberIndex: number|undefined = undefined
-  public secondNumberIndex: number|undefined = undefined
-  public operatorIndex: number|undefined = undefined
+  private firstNumberIndex: number|undefined = undefined
+  private secondNumberIndex: number|undefined = undefined
+  private operatorIndex: number|undefined = undefined
+
+  public getSelection(): [number, number, number] {
+    return [this.firstNumberIndex!, this.operatorIndex!, this.secondNumberIndex!]
+  }
 
   public selectNumber(index: number): void {
     if (this.firstNumberIndex === index)
