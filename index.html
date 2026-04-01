@@ -10,8 +10,16 @@
     <svg id="padlock" viewBox="0,0 310,400" xmlns="http://www.w3.org/2000/svg">
       <g id="shackle">
         <path fill="none" d="M 50,300 v -160 a 105,105 0 0 1 210,0 v 60" />
-        <text id="rating-top" x="155" y="35"></text>
-        <text id="rating-bottom" x="155" y="35"></text>
+        <text class="rating-top" x="155" y="35">
+          <tspan class="easy">★☆☆</tspan>
+          <tspan class="medium">★★☆</tspan>
+          <tspan class="hard">★★★</tspan>
+        </text>
+        <text class="rating-bottom" x="155" y="35">
+          <tspan class="easy">easy</tspan>
+          <tspan class="medium">medium</tspan>
+          <tspan class="hard">hard</tspan>
+        </text>
       </g>
       <rect id="body" x="0" y="160" width="310" height="240" rx="20" />
       <g>
@@ -65,7 +73,6 @@
           <text class="calculation" x="160" y="370"></text>
         </g>
       </g>
-      <text id="brand" x="290" y="395">hangslot24</text>
     </svg>
     <script type="module" src="dist/index.js"></script>
   </body>

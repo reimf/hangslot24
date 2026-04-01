@@ -9,16 +9,20 @@ export class Phase {
   ]
 
   private levels: Level[]
-  private maxCombinations: number
-  private countCombinations: number = 0
+  private maxCount: number
+  private currentCount: number = 0
 
-  private constructor(levels: Level[] = [], maxCombinations: number = 0) {
+  private constructor(levels: Level[], maxCombinations: number) {
     this.levels = levels
-    this.maxCombinations = maxCombinations
+    this.maxCount = maxCombinations
+  }
+
+  public static initialise(): void {
+      Level.initialise()
   }
 
   private select(): Phase {
-    this.countCombinations = 0
+    this.currentCount = 0
     return this
   }
 
@@ -27,7 +31,7 @@ export class Phase {
   }
 
   public isCompleted(): boolean {
-    return this.countCombinations >= this.maxCombinations
+    return this.currentCount >= this.maxCount
   }
 
   public next(): Phase {
@@ -38,7 +42,7 @@ export class Phase {
   }
 
   public getRandomLevel(): Level {
-    this.countCombinations++
+    this.currentCount++
     const levelIndex = Math.floor(Math.random() * this.levels.length)
     return this.levels[levelIndex]!
   }

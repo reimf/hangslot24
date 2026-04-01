@@ -45,6 +45,22 @@ export class Combination {
     return count
   }
 
+  public static hasSolution(numbers: PartialPermutation): boolean {
+    if (numbers.length === 1)
+      return numbers[0] === 24
+    for (let firstNumberIndex = 0; firstNumberIndex < numbers.length; firstNumberIndex++)
+      for (let secondNumberIndex = 0; secondNumberIndex < numbers.length; secondNumberIndex++) {
+        if (firstNumberIndex === secondNumberIndex)
+          continue
+        for (let operatorIndex = 0; operatorIndex < Move.OPERATOR_SYMBOLS.length; operatorIndex++) {
+          const move = new Move(numbers, firstNumberIndex, operatorIndex, secondNumberIndex)
+          if (move.isSolved || (move.isValid && Combination.hasSolution(move.validNewNumbers)))
+            return true
+        }
+      }
+    return false
+  }
+
   private static countSolutionsForPermutation(numbers: PartialPermutation): number {
     if (numbers.length === 1)
       return numbers[0] === 24 ? 1 : 0

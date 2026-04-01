@@ -41,8 +41,8 @@ export class Selector {
     return this.firstNumberIndex === undefined || this.secondNumberIndex === undefined || this.operatorIndex === undefined
   }
 
-  public clear(newFirstNumberIndex: number|undefined = undefined): void {
-    this.firstNumberIndex = newFirstNumberIndex
+  public clear(): void {
+    this.firstNumberIndex = undefined
     this.secondNumberIndex = undefined
     this.operatorIndex = undefined
   }

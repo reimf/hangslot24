@@ -47,47 +47,66 @@ body {
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 
-  #rating-top {
-    dominant-baseline: text-after-edge;
-    fill: var(--shackle-text);
-    font-size: 18px;
-    font-weight: 700;
-    pointer-events: none;
-    text-anchor: middle;
-    user-select: none;
-  }
-
-  #rating-bottom {
-    dominant-baseline: text-before-edge;
-    fill: var(--shackle-text);
-    font-size: 18px;
-    font-weight: 700;
-    pointer-events: none;
-    text-anchor: middle;
-    user-select: none;
-  }
-
   path {
     stroke: var(--padlock-shackle);
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
   }
 
+  text {
+    dominant-baseline: central;
+    fill: var(--shackle-text);
+    font-size: 18px;
+    font-weight: 700;
+    pointer-events: none;
+    text-anchor: middle;
+    user-select: none;
+
+    tspan {
+      display: none;
+
+      &.easy {
+        fill: var(--level-easy);
+      }
+
+      &.medium {
+        fill: var(--level-medium);
+      }
+
+      &.hard {
+        fill: var(--level-hard);
+      }
+    }
+
+    &.rating-top {
+      tspan {
+        dominant-baseline: text-after-edge;
+      }
+    }
+
+    &.rating-bottom {
+      tspan {
+        dominant-baseline: text-before-edge;
+      }
+    }
+
+  }
+
   &.level-easy {
-    #rating-top, #rating-bottom {
-      fill: var(--level-easy);
+    tspan.easy {
+      display: block;
     }
   }
 
   &.level-medium {
-    #rating-top, #rating-bottom {
-      fill: var(--level-medium);
+    .medium {
+      display: block;
     }
   }
 
   &.level-hard {
-    #rating-top, #rating-bottom {
-      fill: var(--level-hard);
+    .hard {
+      display: block;
     }
   }
 
@@ -154,20 +173,10 @@ body {
 }
 
 .calculation {
-  dominant-baseline: middle;
+  dominant-baseline: central;
   font-size: 14px;
   font-weight: 600;
   fill: var(--calculation-text);
   pointer-events: none;
   user-select: none;
-}
-
-#brand {
-  font-size: 14px;
-  font-weight: 700;
-  fill: var(--brand-text);
-  pointer-events: none;
-  user-select: none;
-  text-anchor: end;
-  dominant-baseline: ideographic;
 }

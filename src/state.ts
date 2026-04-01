@@ -1,27 +1,31 @@
 import { Move, PartialPermutation } from './move.js'
-import { FullPermutation } from './combination.js'
-import { Game } from './game.js'
-import { Level } from './level.js'
-import { Selector } from './selector.js'
+import { Combination, FullPermutation } from './combination.js'
+import { Phase } from './phase.js'
 
 export class State {
   public static readonly OPERATOR_SYMBOLS = Move.OPERATOR_SYMBOLS
 
-  private readonly game = new Game()
-  private readonly selector = new Selector()
+  private phase = Phase.first()
+  private level = this.phase.getRandomLevel()
   private currentNumbers: FullPermutation = [NaN, NaN, NaN, NaN]
   private moveHistory: Move[] = []
   private hasHintFailed = false
 
-  constructor(level: Level) {
-    this.reset(level)
+  constructor() {
+    Phase.initialise()
   }
 
-  public reset(level: Level): void {
-    this.currentNumbers = this.game.getRandomPermutation(level)
+  public start(): void {
+    if (this.phase.isCompleted())
+      this.phase = this.phase.next()
+    this.level = this.phase.getRandomLevel()
+    this.currentNumbers = this.level.getRandomCombination().getRandomPermutation()
     this.moveHistory = []
-    this.selector.clear()
     this.hasHintFailed = false
+  }
+
+  public getLevelCssClass(): string {
+    return this.level.getCssClass()
   }
 
   public getNumbers(): PartialPermutation {
@@ -44,6 +48,10 @@ export class State {
     return this.isSolved() || this.isDeadEnd()
   }
 
+  public isUndoDisabled(): boolean {
+    return !this.isStarted() || this.isFinished()
+  }
+
   public isHintDisabled(): boolean {
     return this.isFinished() || this.hasHintFailed
   }
@@ -51,62 +59,52 @@ export class State {
   public undoMove(): void {
     const move = this.moveHistory.pop()!
     this.currentNumbers = [...(move.numbers as FullPermutation)]
-    this.selector.clear()
     this.hasHintFailed = false
   }
 
-  public applyHint(): void {
-    const move = this.game.getHint(this.currentNumbers)
+  public applyHint(): Move | undefined {
+    const hints: Move[] = []
+    for (let firstNumberIndex = 0; firstNumberIndex < this.currentNumbers.length; firstNumberIndex++)
+      for (let secondNumberIndex = 0; secondNumberIndex < this.currentNumbers.length; secondNumberIndex++) {
+        if (firstNumberIndex === secondNumberIndex)
+          continue
+        for (let operatorIndex = 0; operatorIndex < Move.OPERATOR_SYMBOLS.length; operatorIndex++) {
+          const move = new Move(this.currentNumbers, firstNumberIndex, operatorIndex, secondNumberIndex)
+          if (move.isValid && Combination.hasSolution(move.validNewNumbers))
+            hints.push(move)
+        }
+      }
+    const randomIndex = Math.floor(Math.random() * hints.length)
+    const move = hints[randomIndex]
     if (move === undefined) {
       this.hasHintFailed = true
-      return
+      return undefined
     }
     this.makeMove(move)
+    return move
   }
 
   public getCalculation(step: number): string {
     return this.moveHistory.length > step ? this.moveHistory.at(step)!.calculation : ''
   }
 
-  public selectNumber(index: number): void {
-    this.selector.selectNumber(index)
-  }
-
-  public selectOperator(index: number): void {
-    this.selector.selectOperator(index)
-  }
-
-  public isNumberSelected(index: number): boolean {
-    return this.selector.isNumberSelected(index)
-  }
-
-  public isOperatorSelected(index: number): boolean {
-    return this.selector.isOperatorSelected(index)
-  }
-
-  public makeSelectedMove(): void {
-    if (this.selector.isInProgress())
-      return
-    const selection = this.selector.getSelection()
-    const move = new Move(this.currentNumbers, ...selection)
+  public tryMove(firstNumberIndex: number, operatorIndex: number, secondNumberIndex: number): Move | undefined {
+    const move = new Move(this.currentNumbers, firstNumberIndex, operatorIndex, secondNumberIndex)
     if (move.isValid) {
       this.makeMove(move)
-      return
+      return move
     }
-    const reversedSelection = [...selection] as typeof selection
-    reversedSelection.reverse()
-    const reversedMove = new Move(this.currentNumbers, ...reversedSelection)
+    const reversedMove = new Move(this.currentNumbers, secondNumberIndex, operatorIndex, firstNumberIndex)
     if (reversedMove.isValid) {
       this.makeMove(reversedMove)
-      return
+      return reversedMove
     }
-    this.selector.clear()
+    return undefined
   }
 
   private makeMove(move: Move): void {
     this.moveHistory.push(move)
     this.currentNumbers = move.allNewNumbers as FullPermutation
-    this.selector.clear(move.secondNumberIndex)
     this.hasHintFailed = false
   }
 }

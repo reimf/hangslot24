@@ -1,5 +1,5 @@
 import { Button } from './button.js'
-import { Phase } from './phase.js'
+import { Selector } from './selector.js'
 import { State } from './state.js'
 
 export class Padlock {
@@ -9,12 +9,8 @@ export class Padlock {
   private readonly hintButton = new Button(document.querySelector<SVGElement>('.hint-button')!)
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
   private readonly shackle = document.querySelector('#shackle')!
-  private readonly ratingTop = document.querySelector<SVGTextElement>('#rating-top')!
-  private readonly ratingBottom = document.querySelector<SVGTextElement>('#rating-bottom')!
-
-  private phase = Phase.first()
-  private level = this.phase.getRandomLevel()
-  private readonly state = new State(this.level)
+  private readonly selector = new Selector()
+  private readonly state = new State()
 
   constructor() {
     this.wireButtons()
@@ -33,32 +29,45 @@ export class Padlock {
   }
 
   private onClickNumberButton(index: number): void {
-    this.state.selectNumber(index)
-    this.state.makeSelectedMove()
+    this.selector.selectNumber(index)
+    this.trySelectedMove()
     this.updateUI()
   }
 
   private onClickOperatorButton(index: number): void {
-    this.state.selectOperator(index)
-    this.state.makeSelectedMove()
+    this.selector.selectOperator(index)
+    this.trySelectedMove()
     this.updateUI()
   }
 
   private onClickUndoButton(): void {
     this.state.undoMove()
+    this.selector.clear()
     this.updateUI()
   }
 
   private onClickHintButton(): void {
-    this.state.applyHint()
+    const move = this.state.applyHint()
+    if (move !== undefined) {
+      this.selector.clear()
+      this.selector.selectNumber(move.secondNumberIndex)
+    }
     this.updateUI()
   }
 
+  private trySelectedMove(): void {
+    if (this.selector.isInProgress())
+      return
+    const [firstNumberIndex, operatorIndex, secondNumberIndex] = this.selector.getSelection()
+    const move = this.state.tryMove(firstNumberIndex, operatorIndex, secondNumberIndex)
+    this.selector.clear()
+    if (move !== undefined)
+      this.selector.selectNumber(move.secondNumberIndex)
+  }
+
   private start(): void {
-    if ((this.phase.isCompleted()))
-      this.phase = this.phase.next()
-    this.level = this.phase.getRandomLevel()
-    this.state.reset(this.level)
+    this.state.start()
+    this.selector.clear()
     this.updateUI()
   }
 
@@ -69,8 +78,6 @@ export class Padlock {
     this.updateHint()
     this.updateCalculations()
     this.updateShackle()
-    this.updateRating()
-    this.updateLevel()
     if (this.state.isSolved())
       this.startShackleAnimation()
   }
@@ -81,7 +88,7 @@ export class Padlock {
       const value = numbers[index]!
       button.setText(isNaN(value) ? '' : String(value))
       button.disable(isNaN(value) || this.state.isFinished())
-      button.select(this.state.isNumberSelected(index))
+      button.select(this.selector.isNumberSelected(index))
     })
   }
 
@@ -89,13 +96,13 @@ export class Padlock {
     this.operatorButtons.forEach((button, index) => {
       button.setText(State.OPERATOR_SYMBOLS[index]!)
       button.disable(this.state.isFinished())
-      button.select(this.state.isOperatorSelected(index))
+      button.select(this.selector.isOperatorSelected(index))
     })
   }
 
   private updateUndo(): void {
     this.undoButton.setText('↶')
-    this.undoButton.disable(!this.state.isStarted())
+    this.undoButton.disable(!this.state.isUndoDisabled())
   }
 
   private updateHint(): void {
@@ -111,15 +118,7 @@ export class Padlock {
 
   private updateShackle(): void {
     this.shackle.classList.remove(...Array.from(this.shackle.classList))
-    this.shackle.classList.add(this.level.cssClass)
-  }
-
-  private updateRating(): void {
-    this.ratingTop.textContent = this.level.rating
-  }
-
-  private updateLevel(): void {
-    this.ratingBottom.textContent = this.level.text
+    this.shackle.classList.add(this.state.getLevelCssClass())
   }
 
   private startShackleAnimation(): void {
