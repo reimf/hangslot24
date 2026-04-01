@@ -3,12 +3,13 @@ import { Selector } from './selector.js'
 import { State } from './state.js'
 
 export class Padlock {
+  private readonly padlock = document.querySelector('#padlock')!
+  private readonly shackle = document.querySelector('#shackle')!
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
   private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
   private readonly hintButton = new Button(document.querySelector<SVGElement>('.hint-button')!)
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
-  private readonly shackle = document.querySelector('#shackle')!
   private readonly selector = new Selector()
   private readonly state = new State()
 
@@ -30,13 +31,15 @@ export class Padlock {
 
   private onClickNumberButton(index: number): void {
     this.selector.selectNumber(index)
-    this.trySelectedMove()
+    if (this.selector.isComplete())
+      this.makeSelectedMove()
     this.updateUI()
   }
 
   private onClickOperatorButton(index: number): void {
     this.selector.selectOperator(index)
-    this.trySelectedMove()
+    if (this.selector.isComplete())
+      this.makeSelectedMove()
     this.updateUI()
   }
 
@@ -55,9 +58,7 @@ export class Padlock {
     this.updateUI()
   }
 
-  private trySelectedMove(): void {
-    if (this.selector.isInProgress())
-      return
+  private makeSelectedMove(): void {
     const [firstNumberIndex, operatorIndex, secondNumberIndex] = this.selector.getSelection()
     const move = this.state.tryMove(firstNumberIndex, operatorIndex, secondNumberIndex)
     this.selector.clear()
@@ -77,7 +78,7 @@ export class Padlock {
     this.updateUndo()
     this.updateHint()
     this.updateCalculations()
-    this.updateShackle()
+    this.updatePadlock()
     if (this.state.isSolved())
       this.startShackleAnimation()
   }
@@ -102,7 +103,7 @@ export class Padlock {
 
   private updateUndo(): void {
     this.undoButton.setText('↶')
-    this.undoButton.disable(!this.state.isUndoDisabled())
+    this.undoButton.disable(this.state.isUndoDisabled())
   }
 
   private updateHint(): void {
@@ -116,9 +117,9 @@ export class Padlock {
     })
   }
 
-  private updateShackle(): void {
-    this.shackle.classList.remove(...Array.from(this.shackle.classList))
-    this.shackle.classList.add(this.state.getLevelCssClass())
+  private updatePadlock(): void {
+    this.padlock.classList.remove(...Array.from(this.padlock.classList))
+    this.padlock.classList.add(this.state.getLevelCssClass())
   }
 
   private startShackleAnimation(): void {

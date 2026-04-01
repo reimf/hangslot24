@@ -1,22 +1,22 @@
 :root {
-  --page-background:            oklch(40% 0.02445 246.381);
-  --padlock-body:               oklch(35% 0.03914 249.005);
-  --padlock-shackle:            oklch(80% 0.01847 229.263);
+  --page-background: oklch(40% 0.02445 246.381);
+  --padlock-body: oklch(35% 0.03914 249.005);
+  --padlock-shackle: oklch(80% 0.01847 229.263);
 
-  --level-easy:                 #006600;
-  --level-medium:               #CC6600;
-  --level-hard:                 #990000;
+  --level-easy: #006600;
+  --level-medium: #CC6600;
+  --level-hard: #990000;
 
-  --button-background:          oklch(95% 0.005 250);
-  --button-text:                oklch(25% 0.025 249);
+  --button-background: oklch(95% 0.005 250);
+  --button-text: oklch(25% 0.025 249);
   --disabled-button-background: oklch(from var(--button-background) l c h / 0.1);
-  --disabled-button-text:       oklch(25% 0.025 249);
+  --disabled-button-text: oklch(25% 0.025 249);
   --selected-button-background: oklch(70% 0.161 55);
-  --selected-button-text:       oklch(100% 0 0);
+  --selected-button-text: oklch(100% 0 0);
 
-  --calculation-text:           oklch(70% 0.161 55);
-  --brand-text:                 oklch(0% 0 0 / 0.267);
-  --shackle-text:               var(--button-background);
+  --calculation-text: oklch(70% 0.161 55);
+  --brand-text: oklch(0% 0 0 / 0.267);
+  --shackle-text: var(--button-background);
 }
 
 * {
@@ -46,84 +46,98 @@ body {
   transform-origin: 50px 0px;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
+}
 
-  path {
-    stroke: var(--padlock-shackle);
-    stroke-linecap: round;
-    vector-effect: non-scaling-stroke;
-  }
+#arch {
+  fill: none;
+  stroke: var(--padlock-shackle);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
 
-  text {
-    dominant-baseline: central;
-    fill: var(--shackle-text);
-    font-size: 18px;
-    font-weight: 700;
-    pointer-events: none;
-    text-anchor: middle;
-    user-select: none;
+#level {
+  opacity: 1;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    tspan {
-      display: none;
+#level-top {
+  dominant-baseline: central;
+  fill: var(--shackle-text);
+  font-size: 18px;
+  font-weight: 700;
+  pointer-events: none;
+  text-anchor: middle;
+  user-select: none;
+}
 
-      &.easy {
-        fill: var(--level-easy);
-      }
+#level-bottom {
+  dominant-baseline: central;
+  fill: var(--shackle-text);
+  font-size: 18px;
+  font-weight: 700;
+  pointer-events: none;
+  text-anchor: middle;
+  user-select: none;
+}
 
-      &.medium {
-        fill: var(--level-medium);
-      }
+.text-top {
+  dominant-baseline: text-after-edge;
+}
 
-      &.hard {
-        fill: var(--level-hard);
-      }
-    }
+.text-bottom {
+  dominant-baseline: text-before-edge;
+}
 
-    &.rating-top {
-      tspan {
-        dominant-baseline: text-after-edge;
-      }
-    }
-
-    &.rating-bottom {
-      tspan {
-        dominant-baseline: text-before-edge;
-      }
-    }
-
-  }
+.text-easy {
+  display: none;
+  fill: var(--level-easy);
 
   &.level-easy {
-    tspan.easy {
-      display: block;
-    }
+    display: block;
   }
+}
+
+.text-medium {
+  display: none;
+  fill: var(--level-medium);
 
   &.level-medium {
-    .medium {
-      display: block;
-    }
+    display: block;
   }
+}
+
+.text-hard {
+  display: none;
+  fill: var(--level-hard);
 
   &.level-hard {
-    .hard {
-      display: block;
+    display: block;
+  }
+}
+
+#shackle {
+  &.animation-up {
+    transform: translateY(-100px) scaleX(1);
+  }
+
+  &.animation-left {
+    transform: translateY(-100px) scaleX(-1);
+
+    #level {
+      opacity: 0;
     }
   }
 
-  &.animation-up {
+  &.animation-right {
     transform: translateY(-100px) scaleX(1);
 
-    &.animation-left {
-      transform: translateY(-100px) scaleX(-1);
-
-      &.animation-right {
-        transform: translateY(-100px) scaleX(1);
-
-        &.animation-down {
-          transform: translateY(0px) scaleX(1);
-        }
-      }
+    #level {
+      opacity: 1;
     }
+  }
+
+  &.animation-down {
+    transform: translateY(0px) scaleX(1);
   }
 }
 

@@ -1,7 +1,7 @@
 export class Selector {
-  private firstNumberIndex: number|undefined = undefined
-  private secondNumberIndex: number|undefined = undefined
-  private operatorIndex: number|undefined = undefined
+  private firstNumberIndex: number | undefined = undefined
+  private secondNumberIndex: number | undefined = undefined
+  private operatorIndex: number | undefined = undefined
 
   public getSelection(): [number, number, number] {
     return [this.firstNumberIndex!, this.operatorIndex!, this.secondNumberIndex!]
@@ -37,8 +37,8 @@ export class Selector {
     return this.operatorIndex === index
   }
 
-  public isInProgress(): boolean {
-    return this.firstNumberIndex === undefined || this.secondNumberIndex === undefined || this.operatorIndex === undefined
+  public isComplete(): boolean {
+    return this.firstNumberIndex !== undefined && this.secondNumberIndex !== undefined && this.operatorIndex !== undefined
   }
 
   public clear(): void {
