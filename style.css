@@ -36,8 +36,34 @@ body {
 
 #padlock {
   max-width: 95vw;
+  opacity: 1;
   overflow: visible;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   width: 340px;
+
+  &.animation-up {
+    #shackle {
+      transform: translateY(-100px) scaleX(1);
+    }
+  }
+
+  &.animation-left {
+    #shackle {
+      transform: translateY(-100px) scaleX(-1);
+    }
+
+    #level {
+      opacity: 0;
+    }
+  }
+
+  &.animation-hide {
+    opacity: 0;
+
+    #shackle {
+      transition: none;
+    }
+  }
 }
 
 #shackle {
@@ -56,8 +82,7 @@ body {
 }
 
 #level {
-  opacity: 1;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s linear;
 }
 
 #level-top {
@@ -109,32 +134,6 @@ body {
   &.level-medium .text-medium,
   &.level-hard .text-hard {
     display: block;
-  }
-}
-
-#shackle {
-  &.animation-up {
-    transform: translateY(-100px) scaleX(1);
-  }
-
-  &.animation-left {
-    transform: translateY(-100px) scaleX(-1);
-
-    #level {
-      opacity: 0;
-    }
-  }
-
-  &.animation-right {
-    transform: translateY(-100px) scaleX(1);
-
-    #level {
-      opacity: 1;
-    }
-  }
-
-  &.animation-down {
-    transform: translateY(0px) scaleX(1);
   }
 }
 

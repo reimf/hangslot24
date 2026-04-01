@@ -4,7 +4,6 @@ import { State } from './state.js'
 
 export class Padlock {
   private readonly padlock = document.querySelector('#padlock')!
-  private readonly shackle = document.querySelector('#shackle')!
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
   private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
@@ -79,6 +78,7 @@ export class Padlock {
     this.updateHint()
     this.updateCalculations()
     this.updateLevel()
+    this.padlock.classList.remove('animation-hide')
     if (this.state.isSolved())
       this.startShackleAnimation()
   }
@@ -118,16 +118,15 @@ export class Padlock {
   }
 
   private updateLevel(): void {
-    this.padlock.classList.remove(...Array.from(this.padlock.classList))
+    this.padlock.classList.remove('level-easy', 'level-medium', 'level-hard')
     this.padlock.classList.add(this.state.getLevelCssClass())
   }
 
   private startShackleAnimation(): void {
-    setTimeout(() => this.shackle.classList.add('animation-up'), 0)
-    setTimeout(() => this.shackle.classList.add('animation-left'), 1000)
-    setTimeout(() => this.shackle.classList.add('animation-right'), 2000)
-    setTimeout(() => this.shackle.classList.add('animation-down'), 3000)
-    setTimeout(() => this.shackle.classList.remove('animation-up', 'animation-left', 'animation-right', 'animation-down'), 4000)
-    setTimeout(() => this.start(), 4500)
+    setTimeout(() => this.padlock.classList.add('animation-up'), 0)
+    setTimeout(() => this.padlock.classList.add('animation-left'), 1000)
+    setTimeout(() => this.padlock.classList.add('animation-hide'), 3000)
+    setTimeout(() => this.padlock.classList.remove('animation-up', 'animation-left'), 4000)
+    setTimeout(() => this.start(), 5000)
   }
 }
