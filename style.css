@@ -88,29 +88,26 @@ body {
   dominant-baseline: text-before-edge;
 }
 
-.text-easy {
+.level-text {
   display: none;
-  fill: var(--level-easy);
+}
 
-  &.level-easy {
-    display: block;
-  }
+.text-easy {
+  fill: var(--level-easy);
 }
 
 .text-medium {
-  display: none;
   fill: var(--level-medium);
-
-  &.level-medium {
-    display: block;
-  }
 }
 
 .text-hard {
-  display: none;
   fill: var(--level-hard);
+}
 
-  &.level-hard {
+#padlock {
+  &.level-easy .text-easy,
+  &.level-medium .text-medium,
+  &.level-hard .text-hard {
     display: block;
   }
 }

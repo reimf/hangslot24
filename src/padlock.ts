@@ -78,7 +78,7 @@ export class Padlock {
     this.updateUndo()
     this.updateHint()
     this.updateCalculations()
-    this.updatePadlock()
+    this.updateLevel()
     if (this.state.isSolved())
       this.startShackleAnimation()
   }
@@ -117,7 +117,7 @@ export class Padlock {
     })
   }
 
-  private updatePadlock(): void {
+  private updateLevel(): void {
     this.padlock.classList.remove(...Array.from(this.padlock.classList))
     this.padlock.classList.add(this.state.getLevelCssClass())
   }
