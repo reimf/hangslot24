@@ -9,74 +9,81 @@
 </head>
 
 <body>
-  <svg id="padlock" viewBox="0,0 310,400" xmlns="http://www.w3.org/2000/svg">
-    <g id="shackle">
-      <path id="arch" d="M 50,300 v -160 a 105,105 0 0 1 210,0 v 60" />
-      <g id="level">
-        <text id="level-top" x="155" y="35">
-          <tspan class="level-text text-top text-easy">★☆☆</tspan>
-          <tspan class="level-text text-top text-medium">★★☆</tspan>
-          <tspan class="level-text text-top text-hard">★★★</tspan>
-        </text>
-        <text id="level-bottom" x="155" y="35">
-          <tspan class="level-text text-bottom text-easy">easy</tspan>
-          <tspan class="level-text text-bottom text-medium">medium</tspan>
-          <tspan class="level-text text-bottom text-hard">hard</tspan>
-        </text>
+  <svg id="canvas" viewBox="0,0 650,510" xmlns="http://www.w3.org/2000/svg">
+    <g id="padlock">
+      <g id="shackle">
+        <path id="arch" d="M 250,400 v -160 a 105,105 0 0 1 210,0 v 60" stroke-width="60" />
+        <g id="level">
+          <text id="level-top" x="355" y="135">
+            <tspan class="level-text text-top text-easy">★☆☆</tspan>
+            <tspan class="level-text text-top text-medium">★★☆</tspan>
+            <tspan class="level-text text-top text-hard">★★★</tspan>
+          </text>
+          <text id="level-bottom" x="355" y="135">
+            <tspan class="level-text text-bottom text-easy">easy</tspan>
+            <tspan class="level-text text-bottom text-medium">medium</tspan>
+            <tspan class="level-text text-bottom text-hard">hard</tspan>
+          </text>
+        </g>
       </g>
-    </g>
-    <rect id="body" x="0" y="160" width="310" height="240" rx="20" />
-    <g>
-      <g class="button number-button">
-        <rect x="20" y="180" width="60" height="60" rx="10" />
-        <text x="50" y="210"></text>
-      </g>
-      <g class="button number-button">
-        <rect x="90" y="180" width="60" height="60" rx="10" />
-        <text x="120" y="210"></text>
-      </g>
-      <g class="button number-button">
-        <rect x="160" y="180" width="60" height="60" rx="10" />
-        <text x="190" y="210"></text>
-      </g>
-      <g class="button number-button">
-        <rect x="230" y="180" width="60" height="60" rx="10" />
-        <text x="260" y="210"></text>
-      </g>
-    </g>
-    <g>
-      <g class="button operator-button">
-        <rect x="20" y="250" width="60" height="60" rx="10" />
-        <text x="50" y="280"></text>
-      </g>
-      <g class="button operator-button">
-        <rect x="90" y="250" width="60" height="60" rx="10" />
-        <text x="120" y="280"></text>
-      </g>
-      <g class="button operator-button">
-        <rect x="160" y="250" width="60" height="60" rx="10" />
-        <text x="190" y="280"></text>
-      </g>
-      <g class="button operator-button">
-        <rect x="230" y="250" width="60" height="60" rx="10" />
-        <text x="260" y="280"></text>
-      </g>
-    </g>
-    <g>
-      <g class="button undo-button">
-        <rect x="20" y="320" width="60" height="60" rx="10" />
-        <text x="50" y="350"></text>
-      </g>
-      <g class="button hint-button">
-        <rect x="90" y="320" width="60" height="60" rx="10" />
-        <text x="120" y="350"></text>
+      <rect id="body" x="200" y="260" width="310" height="240" rx="20" />
+      <g>
+        <g class="button number-button">
+          <rect x="220" y="280" width="60" height="60" rx="10" />
+          <text x="250" y="310"></text>
+        </g>
+        <g class="button number-button">
+          <rect x="290" y="280" width="60" height="60" rx="10" />
+          <text x="320" y="310"></text>
+        </g>
+        <g class="button number-button">
+          <rect x="360" y="280" width="60" height="60" rx="10" />
+          <text x="390" y="310"></text>
+        </g>
+        <g class="button number-button">
+          <rect x="430" y="280" width="60" height="60" rx="10" />
+          <text x="460" y="310"></text>
+        </g>
       </g>
       <g>
-        <text class="calculation" x="160" y="330"></text>
-        <text class="calculation" x="160" y="350"></text>
-        <text class="calculation" x="160" y="370"></text>
+        <g class="button operator-button">
+          <rect x="220" y="350" width="60" height="60" rx="10" />
+          <text x="250" y="380"></text>
+        </g>
+        <g class="button operator-button">
+          <rect x="290" y="350" width="60" height="60" rx="10" />
+          <text x="320" y="380"></text>
+        </g>
+        <g class="button operator-button">
+          <rect x="360" y="350" width="60" height="60" rx="10" />
+          <text x="390" y="380"></text>
+        </g>
+        <g class="button operator-button">
+          <rect x="430" y="350" width="60" height="60" rx="10" />
+          <text x="460" y="380"></text>
+        </g>
+      </g>
+      <g>
+        <g class="button undo-button">
+          <rect x="220" y="420" width="60" height="60" rx="10" />
+          <text x="250" y="450"></text>
+        </g>
+        <g class="button hint-button">
+          <rect x="290" y="420" width="60" height="60" rx="10" />
+          <text x="320" y="450"></text>
+        </g>
+        <g>
+          <text class="calculation" x="360" y="430"></text>
+          <text class="calculation" x="360" y="450"></text>
+          <text class="calculation" x="360" y="470"></text>
+        </g>
       </g>
     </g>
+    <g>
+      <rect id="scorebox" x="560" y="10" width="80" height="50" rx="15" />
+      <text id="score" x="600" y="35"></text>
+    </g>
+    <text id="points" x="355" y="240"></text>
   </svg>
   <script type="module" src="dist/index.js"></script>
 </body>

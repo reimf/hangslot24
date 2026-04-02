@@ -10,6 +10,8 @@ export class State {
   private currentNumbers: FullPermutation = [NaN, NaN, NaN, NaN]
   private moveHistory: Move[] = []
   private hasHintFailed = false
+  private score = 0
+  private currentPoints = 100
 
   constructor() {
     Phase.initialise()
@@ -22,6 +24,7 @@ export class State {
     this.currentNumbers = this.level.getRandomCombination().getRandomPermutation()
     this.moveHistory = []
     this.hasHintFailed = false
+    this.currentPoints = 100
   }
 
   public getLevelCssClass(): string {
@@ -54,6 +57,22 @@ export class State {
 
   public isHintDisabled(): boolean {
     return this.isFinished() || this.hasHintFailed
+  }
+
+  public getPoints(): string {
+    return `+${this.currentPoints}`
+  }
+
+  public deductHintPoints(): void {
+    this.currentPoints = Math.max(0, this.currentPoints - 50)
+  }
+
+  public getScore(): string {
+    return `${this.score}`
+  }
+
+  public incrementScore(): void {
+    this.score += this.currentPoints
   }
 
   public undoMove(): void {

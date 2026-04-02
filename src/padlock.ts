@@ -4,11 +4,14 @@ import { State } from './state.js'
 
 export class Padlock {
   private readonly padlock = document.querySelector('#padlock')!
+  private readonly shackle = document.querySelector('#shackle')!
   private readonly numberButtons = Array.from(document.querySelectorAll<SVGElement>('.number-button')).map(el => new Button(el))
   private readonly operatorButtons = Array.from(document.querySelectorAll<SVGElement>('.operator-button')).map(el => new Button(el))
   private readonly undoButton = new Button(document.querySelector<SVGElement>('.undo-button')!)
   private readonly hintButton = new Button(document.querySelector<SVGElement>('.hint-button')!)
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
+  private readonly scoreText = document.querySelector<SVGTextElement>('#score')!
+  private readonly pointsText = document.querySelector<SVGTextElement>('#points')!
   private readonly selector = new Selector()
   private readonly state = new State()
 
@@ -51,6 +54,7 @@ export class Padlock {
   private onClickHintButton(): void {
     const move = this.state.applyHint()
     if (move !== undefined) {
+      this.state.deductHintPoints()
       this.selector.clear()
       this.selector.selectNumber(move.secondNumberIndex)
     }
@@ -78,9 +82,10 @@ export class Padlock {
     this.updateHint()
     this.updateCalculations()
     this.updateLevel()
-    this.padlock.classList.remove('animation-hide')
+    this.updateScore()
+    this.updatePoints()
     if (this.state.isSolved())
-      this.startShackleAnimation()
+      this.startAnimation()
   }
 
   private updateNumbers(): void {
@@ -122,11 +127,25 @@ export class Padlock {
     this.padlock.classList.add(this.state.getLevelCssClass())
   }
 
-  private startShackleAnimation(): void {
-    setTimeout(() => this.padlock.classList.add('animation-up'), 0)
-    setTimeout(() => this.padlock.classList.add('animation-left'), 1000)
-    setTimeout(() => this.padlock.classList.add('animation-hide'), 3000)
-    setTimeout(() => this.padlock.classList.remove('animation-up', 'animation-left'), 4000)
+  private updateScore(): void {
+    this.scoreText.textContent = this.state.getScore()
+  }
+
+  private updatePoints(): void {
+    this.pointsText.textContent = this.state.getPoints()
+  }
+
+  private startAnimation(): void {
+    setTimeout(() => this.shackle.classList.add('move-shackle-up'), 0)
+    setTimeout(() => this.shackle.classList.add('mirror-shackle-left'), 1000)
+    setTimeout(() => this.pointsText.classList.add('move-points-to-score'), 1500)
+    setTimeout(() => { this.state.incrementScore(); this.updateScore() }, 3500)
+    setTimeout(() => this.pointsText.classList.add('hide-points'), 3500)
+    setTimeout(() => this.padlock.classList.add('hide-padlock'), 4000)
+    setTimeout(() => this.shackle.classList.remove('move-shackle-up', 'mirror-shackle-left'), 4000)
     setTimeout(() => this.start(), 5000)
+    setTimeout(() => this.padlock.classList.remove('hide-padlock'), 5500)
+    setTimeout(() => this.pointsText.classList.remove('move-points-to-score'), 5500)
+    setTimeout(() => this.pointsText.classList.remove('hide-points'), 5500)
   }
 }
