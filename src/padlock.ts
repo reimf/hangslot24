@@ -112,7 +112,7 @@ export class Padlock {
   }
 
   private updateHint(): void {
-    this.hintButton.setText('ⓘ')
+    this.hintButton.setText('💡')
     this.hintButton.disable(this.state.isHintDisabled())
   }
 
@@ -135,17 +135,28 @@ export class Padlock {
     this.pointsText.textContent = this.state.getPoints()
   }
 
-  private startAnimation(): void {
-    setTimeout(() => this.shackle.classList.add('move-shackle-up'), 0)
-    setTimeout(() => this.shackle.classList.add('mirror-shackle-left'), 1000)
-    setTimeout(() => this.pointsText.classList.add('move-points-to-score'), 1500)
-    setTimeout(() => { this.state.incrementScore(); this.updateScore() }, 3500)
-    setTimeout(() => this.pointsText.classList.add('hide-points'), 3500)
-    setTimeout(() => this.padlock.classList.add('hide-padlock'), 4000)
-    setTimeout(() => this.shackle.classList.remove('move-shackle-up', 'mirror-shackle-left'), 4000)
-    setTimeout(() => this.start(), 5000)
-    setTimeout(() => this.padlock.classList.remove('hide-padlock'), 5500)
-    setTimeout(() => this.pointsText.classList.remove('move-points-to-score'), 5500)
-    setTimeout(() => this.pointsText.classList.remove('hide-points'), 5500)
+  private async startAnimation(): Promise<void> {
+    this.shackle.classList.add('move-shackle-up')
+    await this.sleep(1000)
+    this.shackle.classList.add('mirror-shackle-left')
+    await this.sleep(500)
+    this.pointsText.classList.add('move-points-to-score')
+    await this.sleep(1000)
+    this.state.incrementScore()
+    this.updateScore()
+    this.pointsText.classList.add('hide-points')
+    await this.sleep(500)
+    this.shackle.classList.add('mirror-shackle-right')
+    await this.sleep(1000)
+    this.shackle.classList.add('move-shackle-down')
+    await this.sleep(1000)
+    this.shackle.classList.remove('move-shackle-up', 'mirror-shackle-left', 'mirror-shackle-right', 'move-shackle-down')
+    this.start()
+    await this.sleep(500)
+    this.pointsText.classList.remove('move-points-to-score', 'hide-points')
+  }
+
+  private sleep(milliseconds: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
   }
 }
