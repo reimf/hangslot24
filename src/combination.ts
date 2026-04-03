@@ -54,7 +54,7 @@ export class Combination {
           continue
         for (let operatorIndex = 0; operatorIndex < Move.OPERATOR_SYMBOLS.length; operatorIndex++) {
           const move = new Move(numbers, firstNumberIndex, operatorIndex, secondNumberIndex)
-          if (move.isSolved || (move.isValid && Combination.hasSolution(move.validNewNumbers)))
+          if (move.isValid && Combination.hasSolution(move.validNewNumbers))
             return true
         }
       }
