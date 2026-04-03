@@ -63,10 +63,6 @@ export class State {
     return `+${this.currentPoints}`
   }
 
-  public deductHintPoints(): void {
-    this.currentPoints = Math.max(0, this.currentPoints - 50)
-  }
-
   public getScore(): string {
     return `${this.score}`
   }
@@ -82,8 +78,9 @@ export class State {
   }
 
   public applyHint(): Move | undefined {
+    this.currentPoints = Math.max(0, this.currentPoints - 50)
     const hints: Move[] = []
-    for (let firstNumberIndex = 0; firstNumberIndex < this.currentNumbers.length; firstNumberIndex++)
+    for (let firstNumberIndex = 0; firstNumberIndex < this.currentNumbers.length; firstNumberIndex++) {
       for (let secondNumberIndex = 0; secondNumberIndex < this.currentNumbers.length; secondNumberIndex++) {
         if (firstNumberIndex === secondNumberIndex)
           continue
@@ -93,14 +90,14 @@ export class State {
             hints.push(move)
         }
       }
-    const randomIndex = Math.floor(Math.random() * hints.length)
-    const move = hints[randomIndex]
-    if (move === undefined) {
+    }
+    if (hints.length === 0) {
       this.hasHintFailed = true
       return undefined
     }
-    this.makeMove(move)
-    return move
+    const randomIndex = Math.floor(Math.random() * hints.length)
+    const move = hints[randomIndex]!
+    return this.makeMove(move)
   }
 
   public getCalculation(step: number): string {
@@ -109,21 +106,18 @@ export class State {
 
   public tryMove(firstNumberIndex: number, operatorIndex: number, secondNumberIndex: number): Move | undefined {
     const move = new Move(this.currentNumbers, firstNumberIndex, operatorIndex, secondNumberIndex)
-    if (move.isValid) {
-      this.makeMove(move)
-      return move
-    }
+    if (move.isValid)
+      return this.makeMove(move)
     const reversedMove = new Move(this.currentNumbers, secondNumberIndex, operatorIndex, firstNumberIndex)
-    if (reversedMove.isValid) {
-      this.makeMove(reversedMove)
-      return reversedMove
-    }
+    if (reversedMove.isValid)
+      return this.makeMove(reversedMove)
     return undefined
   }
 
-  private makeMove(move: Move): void {
+  private makeMove(move: Move): Move {
     this.moveHistory.push(move)
     this.currentNumbers = move.allNewNumbers as FullPermutation
     this.hasHintFailed = false
+    return move
   }
 }

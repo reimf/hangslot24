@@ -54,7 +54,6 @@ export class Padlock {
   private onClickHintButton(): void {
     const move = this.state.applyHint()
     if (move !== undefined) {
-      this.state.deductHintPoints()
       this.selector.clear()
       this.selector.selectNumber(move.secondNumberIndex)
     }
