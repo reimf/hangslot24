@@ -12,8 +12,10 @@ export class Padlock {
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
   private readonly scoreText = document.querySelector<SVGTextElement>('#score')!
   private readonly pointsText = document.querySelector<SVGTextElement>('#points')!
+  private readonly timerText = document.querySelector<SVGTextElement>('#timer')!
   private readonly selector = new Selector()
   private readonly state = new State()
+  private timerIntervalId: ReturnType<typeof setInterval> | undefined
 
   constructor() {
     this.wireButtons()
@@ -71,7 +73,21 @@ export class Padlock {
   private start(): void {
     this.state.start()
     this.selector.clear()
+    this.startTimerInterval()
     this.updateUI()
+  }
+
+  private startTimerInterval(): void {
+    if (this.timerIntervalId !== undefined)
+      clearInterval(this.timerIntervalId)
+    this.timerIntervalId = setInterval(() => this.updateTimer(), 1000)
+  }
+
+  private stopTimerInterval(): void {
+    if (this.timerIntervalId !== undefined) {
+      clearInterval(this.timerIntervalId)
+      this.timerIntervalId = undefined
+    }
   }
 
   private updateUI(): void {
@@ -83,6 +99,9 @@ export class Padlock {
     this.updateLevel()
     this.updateScore()
     this.updatePoints()
+    this.updateTimer()
+    if (this.state.isFinished())
+      this.stopTimerInterval()
     if (this.state.isSolved())
       this.startAnimation()
   }
@@ -132,6 +151,10 @@ export class Padlock {
 
   private updatePoints(): void {
     this.pointsText.textContent = this.state.getPoints()
+  }
+
+  private updateTimer(): void {
+    this.timerText.textContent = `${this.state.getElapsedSeconds()}s`
   }
 
   private async startAnimation(): Promise<void> {

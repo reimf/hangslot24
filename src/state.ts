@@ -12,6 +12,7 @@ export class State {
   private hasHintFailed = false
   private score = 0
   private currentPoints = 100
+  private startTime: number = 0
 
   constructor() {
     Phase.initialise()
@@ -25,6 +26,11 @@ export class State {
     this.moveHistory = []
     this.hasHintFailed = false
     this.currentPoints = 100
+    this.startTime = Date.now()
+  }
+
+  public getElapsedSeconds(): number {
+    return Math.floor((Date.now() - this.startTime) / 1000)
   }
 
   public getLevelCssClass(): string {
@@ -60,11 +66,11 @@ export class State {
   }
 
   public getPoints(): string {
-    return `+${this.currentPoints}`
+    return `+€${this.currentPoints}`
   }
 
   public getScore(): string {
-    return `${this.score}`
+    return `€${this.score}`
   }
 
   public incrementScore(): void {

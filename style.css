@@ -220,6 +220,17 @@ body {
   user-select: none;
 }
 
+/* Timer just above points */
+#timer {
+  dominant-baseline: central;
+  fill: var(--points-text);
+  font-size: 16px;
+  font-weight: 600;
+  pointer-events: none;
+  text-anchor: middle;
+  user-select: none;
+}
+
 /* Points in the arch */
 #points {
   dominant-baseline: central;
@@ -233,9 +244,9 @@ body {
 
 @keyframes points-to-score {
   0%   { transform: translate(0, 0);          }
-  60%  { transform: translate(305px, -115px); }
-  80%  { transform: translate(305px, -115px); }
-  100% { transform: translate(305px, -115px); }
+  60%  { transform: translate(295px, -115px); }
+  80%  { transform: translate(295px, -115px); }
+  100% { transform: translate(295px, -115px); }
 }
 
 #points {
