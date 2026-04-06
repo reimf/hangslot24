@@ -9,6 +9,7 @@ graph TD
     State --> Move
     State --> Combination
     State --> Phase
+    State --> Logger
     Phase --> Level
     Level --> Combination
     Combination --> Move

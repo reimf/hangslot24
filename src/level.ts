@@ -1,21 +1,23 @@
 import { Combination } from './combination.js'
 
 export class Level {
-  public static readonly EASY = new Level(65, Infinity, 'level-easy')
-  public static readonly MEDIUM = new Level(25, 64, 'level-medium')
-  public static readonly HARD = new Level(1, 24, 'level-hard')
+  public static readonly EASY = new Level(65, Infinity, 'level-easy', 1)
+  public static readonly MEDIUM = new Level(25, 64, 'level-medium', 2)
+  public static readonly HARD = new Level(1, 24, 'level-hard', 3)
 
   private static readonly ALL: Level[] = [Level.EASY, Level.MEDIUM, Level.HARD]
 
   private readonly minCount: number
   private readonly maxCount: number
   private readonly cssClass: string
+  private readonly rank: number
   private readonly combinations: Combination[] = []
 
-  private constructor(minCount: number, maxCount: number, cssClass: string) {
+  private constructor(minCount: number, maxCount: number, cssClass: string, rank: number) {
     this.minCount = minCount
     this.maxCount = maxCount
     this.cssClass = cssClass
+    this.rank = rank
   }
 
   public static initialise(): void {
@@ -25,6 +27,10 @@ export class Level {
 
   public getCssClass(): string {
     return this.cssClass
+  }
+
+  public getRank(): number {
+    return this.rank
   }
 
   private addCombination(combination: Combination): void {

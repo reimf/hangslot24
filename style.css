@@ -48,6 +48,16 @@ body {
   width: 100vw;
 }
 
+text {
+  dominant-baseline: central;
+  font-size: 24px;
+  font-weight: 700;
+  pointer-events: none;
+  text-anchor: middle;
+  user-select: none;
+}
+
+
 #arch {
   fill: none;
   stroke: var(--padlock-shackle);
@@ -57,21 +67,11 @@ body {
 }
 
 #level-top {
-  dominant-baseline: central;
   font-size: 18px;
-  font-weight: 700;
-  pointer-events: none;
-  text-anchor: middle;
-  user-select: none;
 }
 
 #level-bottom {
-  dominant-baseline: central;
   font-size: 18px;
-  font-weight: 700;
-  pointer-events: none;
-  text-anchor: middle;
-  user-select: none;
 }
 
 .text-top {
@@ -118,19 +118,12 @@ body {
   }
 
   text {
-    font-size: 24px;
-    font-weight: 700;
     fill: var(--button-text);
-    pointer-events: none;
-    user-select: none;
-    dominant-baseline: central;
-    text-anchor: middle;
 
     &.malus {
       dominant-baseline: text-bottom;
       fill: var(--points-text);
       font-size: 14px;
-      text-anchor: middle;
     }
   }
 
@@ -159,15 +152,29 @@ body {
 }
 
 .calculation {
-  dominant-baseline: central;
-  font-size: 14px;
-  font-weight: 600;
   fill: var(--calculation-text);
-  pointer-events: none;
-  user-select: none;
+  font-size: 14px;
+  text-anchor: start;
 }
 
-/* Padlock open and close animation */
+#scorebox {
+  fill: var(--score-background);
+}
+
+#score {
+  fill: var(--score-text);
+}
+
+#timer {
+  fill: var(--points-text);
+  font-size: 16px;
+}
+
+#points {
+  fill: var(--points-text);
+}
+
+/* Animations */
 #padlock {
   opacity: 1;
   overflow: visible;
@@ -205,43 +212,6 @@ body {
   }
 }
 
-/* Score box */
-#scorebox {
-  fill: var(--score-background);
-}
-
-#score {
-  dominant-baseline: central;
-  fill: var(--score-text);
-  font-size: 24px;
-  font-weight: 700;
-  pointer-events: none;
-  text-anchor: middle;
-  user-select: none;
-}
-
-/* Timer just above points */
-#timer {
-  dominant-baseline: central;
-  fill: var(--points-text);
-  font-size: 16px;
-  font-weight: 600;
-  pointer-events: none;
-  text-anchor: middle;
-  user-select: none;
-}
-
-/* Points in the arch */
-#points {
-  dominant-baseline: central;
-  fill: var(--points-text);
-  font-size: 24px;
-  font-weight: 700;
-  pointer-events: none;
-  text-anchor: middle;
-  user-select: none;
-}
-
 @keyframes points-to-score {
   0%   { transform: translate(0, 0);          }
   60%  { transform: translate(295px, -115px); }
@@ -258,3 +228,10 @@ body {
     visibility: hidden;
   }
 }
+
+#timer {
+  &.hide-timer {
+    visibility: hidden;
+  }
+}
+

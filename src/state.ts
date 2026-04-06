@@ -1,20 +1,24 @@
-import { Move, PartialPermutation } from './move.js'
 import { Combination, FullPermutation } from './combination.js'
+import { Logger } from './logger.js'
+import { Move, PartialPermutation } from './move.js'
 import { Phase } from './phase.js'
 
 export class State {
   public static readonly OPERATOR_SYMBOLS = Move.OPERATOR_SYMBOLS
-
+  private readonly logger = new Logger('https://script.google.com/macros/s/AKfycbwL0UWjhllCFnUaqDmA_jBxfSxctOxDfM5ztsGNNBy5XXLDdMPgaZjOUwe_acef-vEi/exec')
+  private readonly padlockId: ReturnType<typeof crypto.randomUUID>
   private phase = Phase.first()
   private level = this.phase.getRandomLevel()
   private currentNumbers: FullPermutation = [NaN, NaN, NaN, NaN]
   private moveHistory: Move[] = []
+  private numberOfHintsUsed = 0
   private hasHintFailed = false
   private score = 0
   private currentPoints = 100
   private startTime: number = 0
 
-  constructor() {
+  constructor(padlockId: ReturnType<typeof crypto.randomUUID>) {
+    this.padlockId = padlockId
     Phase.initialise()
   }
 
@@ -24,6 +28,7 @@ export class State {
     this.level = this.phase.getRandomLevel()
     this.currentNumbers = this.level.getRandomCombination().getRandomPermutation()
     this.moveHistory = []
+    this.numberOfHintsUsed = 0
     this.hasHintFailed = false
     this.currentPoints = 100
     this.startTime = Date.now()
@@ -65,12 +70,12 @@ export class State {
     return this.isFinished() || this.hasHintFailed
   }
 
-  public getPoints(): string {
-    return `+€${this.currentPoints}`
+  public getPoints(): number {
+    return this.currentPoints
   }
 
-  public getScore(): string {
-    return `€${this.score}`
+  public getScore(): number {
+    return this.score
   }
 
   public incrementScore(): void {
@@ -85,6 +90,7 @@ export class State {
 
   public applyHint(): Move | undefined {
     this.currentPoints = Math.max(0, this.currentPoints - 50)
+    this.numberOfHintsUsed++
     const hints: Move[] = []
     for (let firstNumberIndex = 0; firstNumberIndex < this.currentNumbers.length; firstNumberIndex++) {
       for (let secondNumberIndex = 0; secondNumberIndex < this.currentNumbers.length; secondNumberIndex++) {
@@ -124,6 +130,13 @@ export class State {
     this.moveHistory.push(move)
     this.currentNumbers = move.allNewNumbers as FullPermutation
     this.hasHintFailed = false
+    if (move.isSolved)
+      this.logger.log({
+        padlockId: this.padlockId,
+        rank: this.level.getRank(),
+        elapsedSeconds: this.getElapsedSeconds(),
+        numberOfHintsUsed: this.numberOfHintsUsed,
+      })
     return move
   }
 }

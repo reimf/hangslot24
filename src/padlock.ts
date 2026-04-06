@@ -13,8 +13,9 @@ export class Padlock {
   private readonly scoreText = document.querySelector<SVGTextElement>('#score')!
   private readonly pointsText = document.querySelector<SVGTextElement>('#points')!
   private readonly timerText = document.querySelector<SVGTextElement>('#timer')!
+  private readonly padlockId = crypto.randomUUID()
   private readonly selector = new Selector()
-  private readonly state = new State()
+  private readonly state = new State(this.padlockId)
   private timerIntervalId: ReturnType<typeof setInterval> | undefined
 
   constructor() {
@@ -146,11 +147,11 @@ export class Padlock {
   }
 
   private updateScore(): void {
-    this.scoreText.textContent = this.state.getScore()
+    this.scoreText.textContent = `€${this.state.getScore()}`
   }
 
   private updatePoints(): void {
-    this.pointsText.textContent = this.state.getPoints()
+    this.pointsText.textContent = `+€${this.state.getPoints()}`
   }
 
   private updateTimer(): void {
@@ -158,6 +159,7 @@ export class Padlock {
   }
 
   private async startAnimation(): Promise<void> {
+    this.timerText.classList.add('hide-timer')
     this.shackle.classList.add('move-shackle-up')
     await this.sleep(1000)
     this.shackle.classList.add('mirror-shackle-left')
@@ -176,6 +178,7 @@ export class Padlock {
     this.start()
     await this.sleep(500)
     this.pointsText.classList.remove('move-points-to-score', 'hide-points')
+    this.timerText.classList.remove('hide-timer')
   }
 
   private sleep(milliseconds: number): Promise<void> {
