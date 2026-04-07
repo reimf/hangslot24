@@ -10,14 +10,14 @@ export class Level {
   private readonly minCount: number
   private readonly maxCount: number
   private readonly cssClass: string
-  private readonly rank: number
+  private readonly difficulty: number
   private readonly combinations: Combination[] = []
 
-  private constructor(minCount: number, maxCount: number, cssClass: string, rank: number) {
+  private constructor(minCount: number, maxCount: number, cssClass: string, difficulty: number) {
     this.minCount = minCount
     this.maxCount = maxCount
     this.cssClass = cssClass
-    this.rank = rank
+    this.difficulty = difficulty
   }
 
   public static initialise(): void {
@@ -29,8 +29,8 @@ export class Level {
     return this.cssClass
   }
 
-  public getRank(): number {
-    return this.rank
+  public getDifficulty(): number {
+    return this.difficulty
   }
 
   private addCombination(combination: Combination): void {

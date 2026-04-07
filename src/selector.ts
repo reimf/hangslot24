@@ -17,8 +17,8 @@ export class Selector {
     else if (this.secondNumberIndex === undefined)
       this.secondNumberIndex = index
     else {
-      this.firstNumberIndex = index
-      this.secondNumberIndex = undefined
+      this.firstNumberIndex = this.secondNumberIndex
+      this.secondNumberIndex = index
     }
   }
 

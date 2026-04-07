@@ -5,10 +5,10 @@ import { Phase } from './phase.js'
 
 export class State {
   public static readonly OPERATOR_SYMBOLS = Move.OPERATOR_SYMBOLS
-  private readonly logger = new Logger('https://script.google.com/macros/s/AKfycbwL0UWjhllCFnUaqDmA_jBxfSxctOxDfM5ztsGNNBy5XXLDdMPgaZjOUwe_acef-vEi/exec')
   private readonly padlockId: ReturnType<typeof crypto.randomUUID>
   private phase = Phase.first()
   private level = this.phase.getRandomLevel()
+  private combination: Combination = this.level.getRandomCombination()
   private currentNumbers: FullPermutation = [NaN, NaN, NaN, NaN]
   private moveHistory: Move[] = []
   private numberOfHintsUsed = 0
@@ -26,7 +26,8 @@ export class State {
     if (this.phase.isCompleted())
       this.phase = this.phase.next()
     this.level = this.phase.getRandomLevel()
-    this.currentNumbers = this.level.getRandomCombination().getRandomPermutation()
+    this.combination = this.level.getRandomCombination()
+    this.currentNumbers = this.combination.getRandomPermutation()
     this.moveHistory = []
     this.numberOfHintsUsed = 0
     this.hasHintFailed = false
@@ -131,11 +132,12 @@ export class State {
     this.currentNumbers = move.allNewNumbers as FullPermutation
     this.hasHintFailed = false
     if (move.isSolved)
-      this.logger.log({
-        padlockId: this.padlockId,
-        rank: this.level.getRank(),
-        elapsedSeconds: this.getElapsedSeconds(),
-        numberOfHintsUsed: this.numberOfHintsUsed,
+      Logger.log({
+        padlock_id: this.padlockId,
+        difficulty: this.level.getDifficulty(),
+        solution_count: this.combination.solutionCount,
+        elapsed_seconds: this.getElapsedSeconds(),
+        number_of_hints_used: this.numberOfHintsUsed,
       })
     return move
   }
