@@ -45,6 +45,7 @@ body {
 }
 
 #canvas {
+  max-height: 100vh;
   width: 100vw;
 }
 
@@ -57,12 +58,11 @@ text {
   user-select: none;
 }
 
-
 #arch {
   fill: none;
   stroke: var(--padlock-shackle);
   stroke-linecap: round;
-  stroke-width: calc(60 * 100vw / 710); /* 60 SVG units expressed in screen pixels to compensate for non-scaling-stroke removing viewBox scaling */
+  stroke-width: calc(60 * min(100vw / 710, 100vh / 520)); /* 60 SVG units expressed in screen pixels to compensate for non-scaling-stroke removing viewBox scaling */
   vector-effect: non-scaling-stroke;
 }
 
