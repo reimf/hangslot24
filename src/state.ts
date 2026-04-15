@@ -43,8 +43,8 @@ export class State {
       this.points--
   }
 
-  public getLevelCssClass(): string {
-    return this.level.getCssClass()
+  public getDifficulty(): number {
+    return this.level.getDifficulty()
   }
 
   public getNumbers(): PartialPermutation {

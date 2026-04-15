@@ -17,9 +17,9 @@
   --points-text: var(--light-blue);
   --malus-text: var(--bright-red);
 
-  --level-easy: var(--dark-green);
-  --level-medium: var(--dark-orange);
-  --level-hard: var(--dark-red);
+  --level-1: var(--dark-green);
+  --level-2: var(--dark-orange);
+  --level-3: var(--dark-red);
 
   --button-background: var(--almost-white);
   --button-text: var(--dark-blue);
@@ -63,7 +63,8 @@ text {
   fill: none;
   stroke: var(--padlock-shackle);
   stroke-linecap: round;
-  stroke-width: calc(60 * min(100vw / 710, 100vh / 520)); /* 60 SVG units expressed in screen pixels to compensate for non-scaling-stroke removing viewBox scaling */
+  stroke-width: calc(60 * min(100vw / 710, 100vh / 520));
+  /* 60 SVG units expressed in screen pixels to compensate for non-scaling-stroke removing viewBox scaling */
   vector-effect: non-scaling-stroke;
 }
 
@@ -88,21 +89,22 @@ text {
 }
 
 .text-easy {
-  fill: var(--level-easy);
+  fill: var(--level-1);
 }
 
 .text-medium {
-  fill: var(--level-medium);
+  fill: var(--level-2);
 }
 
 .text-hard {
-  fill: var(--level-hard);
+  fill: var(--level-3);
 }
 
 #padlock {
-  &.level-easy .text-easy,
-  &.level-medium .text-medium,
-  &.level-hard .text-hard {
+
+  &.level-1 .text-easy,
+  &.level-2 .text-medium,
+  &.level-3 .text-hard {
     display: block;
   }
 }
@@ -236,10 +238,21 @@ text {
 }
 
 @keyframes points-to-score {
-  0%   { transform: translate(0, 0);          }
-  60%  { transform: translate(295px, -115px); }
-  80%  { transform: translate(295px, -115px); }
-  100% { transform: translate(295px, -115px); }
+  0% {
+    transform: translate(0, 0);
+  }
+
+  60% {
+    transform: translate(295px, -115px);
+  }
+
+  80% {
+    transform: translate(295px, -115px);
+  }
+
+  100% {
+    transform: translate(295px, -115px);
+  }
 }
 
 #points {

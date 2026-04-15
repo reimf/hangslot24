@@ -148,8 +148,10 @@ export class Padlock {
   }
 
   private updateLevel(): void {
-    this.padlock.classList.remove('level-easy', 'level-medium', 'level-hard')
-    this.padlock.classList.add(this.state.getLevelCssClass())
+    const levelClassPrefix = 'level-'
+    const levelClassNames = Array.from(this.padlock.classList).filter(className => className.startsWith(levelClassPrefix))
+    this.padlock.classList.remove(...levelClassNames)
+    this.padlock.classList.add(`${levelClassPrefix}${this.state.getDifficulty()}`)
   }
 
   private updateScore(): void {
