@@ -30,7 +30,9 @@ export class Move {
     this.isDeadEnd = this.validNewNumbers.length === 1 && this.validNewNumbers[0] !== 24
     this.isSolved = this.validNewNumbers.length === 1 && this.validNewNumbers[0] === 24
     const operatorSymbol = Move.OPERATOR_SYMBOLS[this.operatorIndex]!
-    this.calculation = `${firstNumber} ${operatorSymbol} ${secondNumber} = ${this.result}`
+    const largestNumber = Math.max(firstNumber, secondNumber)
+    const smallestNumber = Math.min(firstNumber, secondNumber)
+    this.calculation = `${largestNumber} ${operatorSymbol} ${smallestNumber} = ${this.result}`
   }
 
   private static add(firstNumber: number, secondNumber: number): number {
