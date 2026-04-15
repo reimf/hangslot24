@@ -7,6 +7,7 @@
   --dark-green: oklch(45% 0.15 140);
   --dark-orange: oklch(60% 0.15 50);
   --dark-red: oklch(45% 0.18 30);
+  --bright-red: oklch(65% 0.25 30);
 
   --page-background: var(--dark-gray);
   --padlock-body: var(--dark-blue);
@@ -14,6 +15,7 @@
   --score-background: var(--dark-blue);
   --score-text: var(--light-blue);
   --points-text: var(--light-blue);
+  --malus-text: var(--bright-red);
 
   --level-easy: var(--dark-green);
   --level-medium: var(--dark-orange);
@@ -31,7 +33,7 @@
 
 * {
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: Verdana, sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -51,7 +53,6 @@ body {
 
 text {
   dominant-baseline: central;
-  font-size: 24px;
   font-weight: 700;
   pointer-events: none;
   text-anchor: middle;
@@ -119,12 +120,6 @@ text {
 
   text {
     fill: var(--button-text);
-
-    &.malus {
-      dominant-baseline: text-bottom;
-      fill: var(--points-text);
-      font-size: 14px;
-    }
   }
 
   &.disabled {
@@ -151,6 +146,36 @@ text {
   }
 }
 
+.number-button {
+  text {
+    font-size: 24px;
+  }
+}
+
+.operator-button {
+  text {
+    font-size: 28px;
+  }
+}
+
+.undo-button {
+  text {
+    font-size: 18px;
+  }
+}
+
+.hint-button {
+  text {
+    font-size: 18px;
+  }
+
+  #malus {
+    dominant-baseline: text-bottom;
+    fill: var(--malus-text);
+    font-size: 14px;
+  }
+}
+
 .calculation {
   fill: var(--calculation-text);
   font-size: 14px;
@@ -159,19 +184,17 @@ text {
 
 #scorebox {
   fill: var(--score-background);
+  font-size: 24px;
 }
 
 #score {
   fill: var(--score-text);
-}
-
-#timer {
-  fill: var(--points-text);
-  font-size: 16px;
+  font-size: 24px;
 }
 
 #points {
   fill: var(--points-text);
+  font-size: 24px;
 }
 
 /* Animations */
@@ -228,10 +251,3 @@ text {
     visibility: hidden;
   }
 }
-
-#timer {
-  &.hide-timer {
-    visibility: hidden;
-  }
-}
-

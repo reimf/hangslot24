@@ -12,10 +12,11 @@ export class Padlock {
   private readonly calculationTexts = Array.from(document.querySelectorAll<SVGElement>('.calculation'))
   private readonly scoreText = document.querySelector<SVGTextElement>('#score')!
   private readonly pointsText = document.querySelector<SVGTextElement>('#points')!
-  private readonly timerText = document.querySelector<SVGTextElement>('#timer')!
+  private readonly malusText = document.querySelector<SVGTextElement>('#malus')!
   private readonly padlockId = crypto.randomUUID()
   private readonly selector = new Selector()
   private readonly state = new State(this.padlockId)
+  private timerTimeoutId: ReturnType<typeof setTimeout> | undefined
   private timerIntervalId: ReturnType<typeof setInterval> | undefined
 
   constructor() {
@@ -79,12 +80,18 @@ export class Padlock {
   }
 
   private startTimerInterval(): void {
-    if (this.timerIntervalId !== undefined)
-      clearInterval(this.timerIntervalId)
-    this.timerIntervalId = setInterval(() => this.updateTimer(), 1000)
+    this.stopTimerInterval()
+    this.timerTimeoutId = setTimeout(() => {
+      this.timerTimeoutId = undefined
+      this.timerIntervalId = setInterval(() => this.decreasePoints(), 2000)
+    }, 30000)
   }
 
   private stopTimerInterval(): void {
+    if (this.timerTimeoutId !== undefined) {
+      clearTimeout(this.timerTimeoutId)
+      this.timerTimeoutId = undefined
+    }
     if (this.timerIntervalId !== undefined) {
       clearInterval(this.timerIntervalId)
       this.timerIntervalId = undefined
@@ -100,7 +107,6 @@ export class Padlock {
     this.updateLevel()
     this.updateScore()
     this.updatePoints()
-    this.updateTimer()
     if (this.state.isFinished())
       this.stopTimerInterval()
     if (this.state.isSolved())
@@ -126,12 +132,12 @@ export class Padlock {
   }
 
   private updateUndo(): void {
-    this.undoButton.setText('↶')
+    this.undoButton.setText('undo')
     this.undoButton.disable(this.state.isUndoDisabled())
   }
 
   private updateHint(): void {
-    this.hintButton.setText('💡')
+    this.hintButton.setText('hint')
     this.hintButton.disable(this.state.isHintDisabled())
   }
 
@@ -152,14 +158,16 @@ export class Padlock {
 
   private updatePoints(): void {
     this.pointsText.textContent = `+€${this.state.getPoints()}`
+    this.malusText.textContent = `−€${this.state.getMalusPoints()}`
   }
 
-  private updateTimer(): void {
-    this.timerText.textContent = `${this.state.getElapsedSeconds()}s`
+  private decreasePoints(): void {
+    this.state.decreasePoints()
+    this.updatePoints()
   }
 
   private async startAnimation(): Promise<void> {
-    this.timerText.classList.add('hide-timer')
+    this.stopTimerInterval()
     this.shackle.classList.add('move-shackle-up')
     await this.sleep(1000)
     this.shackle.classList.add('mirror-shackle-left')
@@ -178,7 +186,6 @@ export class Padlock {
     this.start()
     await this.sleep(500)
     this.pointsText.classList.remove('move-points-to-score', 'hide-points')
-    this.timerText.classList.remove('hide-timer')
   }
 
   private sleep(milliseconds: number): Promise<void> {

@@ -6,7 +6,6 @@ export class Logger {
     padlock_id: string,
     difficulty: number,
     solution_count: number,
-    elapsed_seconds: number,
     number_of_hints_used: number,
   }): void {
     fetch(`${SUPABASE_URL}/rest/v1/logs`, {

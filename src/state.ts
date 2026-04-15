@@ -14,8 +14,7 @@ export class State {
   private numberOfHintsUsed = 0
   private hasHintFailed = false
   private score = 0
-  private currentPoints = 100
-  private startTime: number = 0
+  private points = 100
 
   constructor(padlockId: ReturnType<typeof crypto.randomUUID>) {
     this.padlockId = padlockId
@@ -31,12 +30,17 @@ export class State {
     this.moveHistory = []
     this.numberOfHintsUsed = 0
     this.hasHintFailed = false
-    this.currentPoints = 100
-    this.startTime = Date.now()
+    this.points = 100
   }
 
-  public getElapsedSeconds(): number {
-    return Math.floor((Date.now() - this.startTime) / 1000)
+  public getMalusPoints(): number {
+    const factor = this.numberOfHintsUsed === 0 ? 0.5 : 1
+    return Math.floor(this.points * factor)
+  }
+
+  public decreasePoints(): void {
+    if (this.points > 0)
+      this.points--
   }
 
   public getLevelCssClass(): string {
@@ -64,7 +68,7 @@ export class State {
   }
 
   public isUndoDisabled(): boolean {
-    return !this.isStarted() || this.isFinished()
+    return !this.isStarted() || this.isSolved()
   }
 
   public isHintDisabled(): boolean {
@@ -72,7 +76,7 @@ export class State {
   }
 
   public getPoints(): number {
-    return this.currentPoints
+    return this.points
   }
 
   public getScore(): number {
@@ -80,7 +84,7 @@ export class State {
   }
 
   public incrementScore(): void {
-    this.score += this.currentPoints
+    this.score += this.points
   }
 
   public undoMove(): void {
@@ -90,7 +94,7 @@ export class State {
   }
 
   public applyHint(): Move | undefined {
-    this.currentPoints = Math.max(0, this.currentPoints - 50)
+    this.points = Math.max(0, this.points - this.getMalusPoints())
     this.numberOfHintsUsed++
     const hints: Move[] = []
     for (let firstNumberIndex = 0; firstNumberIndex < this.currentNumbers.length; firstNumberIndex++) {
@@ -136,7 +140,6 @@ export class State {
         padlock_id: this.padlockId,
         difficulty: this.level.getDifficulty(),
         solution_count: this.combination.solutionCount,
-        elapsed_seconds: this.getElapsedSeconds(),
         number_of_hints_used: this.numberOfHintsUsed,
       })
     return move
