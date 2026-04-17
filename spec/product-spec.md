@@ -26,8 +26,8 @@ A clickable button visibly changes label colour to the accent colour when the us
 
 The difficulty level is displayed on the shackle as a star rating (top line) and a text label (bottom line):
 
-| Level  | Stars | Colour |
-|--------|-------|--------|
+| Level  | Stars  | Colour |
+|--------|--------|--------|
 | Easy   | ★☆☆   | Green  |
 | Medium | ★★☆   | Orange |
 | Hard   | ★★★   | Red    |
