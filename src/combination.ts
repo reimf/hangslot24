@@ -80,4 +80,47 @@ export class Combination {
     }
     return count
   }
+
+  public static generateSolvable(): string[] {
+    const solvable = new Map<string, number>()
+
+    for (const combination of Combination.generateAll()) {
+      if (combination.solutionCount === 0)
+        continue
+      solvable.set(combination.numbers.join(','), combination.solutionCount)
+      Combination.collectIntermediates(combination.numbers as PartialPermutation, solvable)
+    }
+
+    return [...solvable.entries()].map(([key, count]) => {
+      const nums = key.split(',')
+      const padded = [...nums, ...Array(4 - nums.length).fill('null')]
+      return `${nums.length},${padded.join(',')},${count}`
+    })
+  }
+
+  private static collectIntermediates(numbers: PartialPermutation, solvable: Map<string, number>): boolean {
+    if (numbers.length === 1)
+      return numbers[0] === 24
+
+    let foundSolution = false
+    for (let firstNumberIndex = 0; firstNumberIndex < numbers.length; firstNumberIndex++) {
+      for (let secondNumberIndex = 0; secondNumberIndex < numbers.length; secondNumberIndex++) {
+        if (firstNumberIndex === secondNumberIndex)
+          continue
+        for (let operatorIndex = 0; operatorIndex < Move.OPERATOR_SYMBOLS.length; operatorIndex++) {
+          const move = new Move(numbers, firstNumberIndex, operatorIndex, secondNumberIndex)
+          if (!move.isValid)
+            continue
+          if (Combination.collectIntermediates(move.validNewNumbers, solvable)) {
+            foundSolution = true
+            const sorted = [...move.validNewNumbers].sort((a, b) => a - b)
+            const key = sorted.join(',')
+            if (!solvable.has(key))
+              solvable.set(key, Combination.countSolutionsForPermutation(sorted as PartialPermutation))
+          }
+        }
+      }
+    }
+    return foundSolution
+  }
 }
