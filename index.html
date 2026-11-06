@@ -2,14 +2,21 @@
 <html lang="nl">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; connect-src 'self' https://wzvonmurvjpzjzjuufrl.supabase.co; object-src 'none'; base-uri 'self'; form-action 'none'">
   <title>Hangslot24</title>
-  <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="description"
+    content="Hangslot24 is een rekenpuzzel: combineer 4 getallen met +, −, × en ÷ in 3 stappen tot je 24 krijgt en open het hangslot.">
+  <link rel="canonical" href="https://hangslot24.nl/">
+  <link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+  <h1 class="visually-hidden">Hangslot24</h1>
   <svg id="canvas" viewBox="0,0 710,520" xmlns="http://www.w3.org/2000/svg">
     <g id="padlock">
       <g id="shackle">

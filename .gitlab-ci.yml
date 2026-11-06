@@ -20,10 +20,10 @@ pages:
   stage: deploy
   script:
     - mkdir public
-    - cp *.{css,html} public
+    - cp *.{css,html,ico,png,txt} public
     - mkdir public/dist
     - cp dist/*.js public/dist
-    - gzip -k -6 public/*.{css,html} public/dist/*.js
+    - gzip -k -6 public/*.{css,html,txt} public/dist/*.js
   artifacts:
     paths:
       - public

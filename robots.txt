@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hangslot24.nl/sitemap.txt
