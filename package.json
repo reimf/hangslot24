@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "generate": "tsx src/generator.ts",
-    "generate-solution-counts": "tsx scripts/generate-solution-counts.ts"
+    "generate": "tsx src/generator.ts"
   },
   "dependencies": {
     "typescript": "^5.9.3"

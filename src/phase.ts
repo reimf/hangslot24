@@ -17,8 +17,8 @@ export class Phase {
     this.maxCount = maxCombinations
   }
 
-  public static initialise(): void {
-      Level.initialise()
+  public static initialise(): Promise<void> {
+    return Level.initialise()
   }
 
   private select(): Phase {

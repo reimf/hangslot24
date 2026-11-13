@@ -18,7 +18,10 @@ export class State {
 
   constructor(padlockId: ReturnType<typeof crypto.randomUUID>) {
     this.padlockId = padlockId
-    Phase.initialise()
+  }
+
+  public static initialise(): Promise<void> {
+    return Phase.initialise()
   }
 
   public start(): void {

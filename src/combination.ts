@@ -1,5 +1,4 @@
 import { Move, PartialPermutation } from './move.js'
-import { SOLUTION_COUNTS } from './solution-counts.js'
 
 export type FullPermutation = [number, number, number, number]
 
@@ -20,14 +19,6 @@ export class Combination {
             yield new Combination(a, b, c, d)
   }
 
-  public static *precomputedSolvable(): Generator<Combination> {
-    for (const [a, b, c, d, solutionCount] of SOLUTION_COUNTS)
-      yield new Combination(a, b, c, d, solutionCount)
-  }
-
-  public getNumbers(): readonly number[] {
-    return this.numbers
-  }
 
   public getRandomPermutation(): FullPermutation {
     const permutation = [...this.numbers]
