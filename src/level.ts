@@ -19,7 +19,7 @@ export class Level {
   }
 
   public static initialise(): void {
-    for (const combination of Combination.generateAll())
+    for (const combination of Combination.precomputedSolvable())
       Level.ALL.forEach(level => level.addCombination(combination))
   }
 
