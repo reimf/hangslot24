@@ -273,3 +273,15 @@ text {
     visibility: hidden;
   }
 }
+/* the 404 page: light text in a column on the dark page */
+body.not-found {
+  color: var(--almost-white);
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+body.not-found a {
+  color: inherit;
+}
